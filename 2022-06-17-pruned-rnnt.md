@@ -97,7 +97,7 @@ RNN-T 模型最后一层的输出是一个 4-D 的 tensor，维度是 `(N, T, U,
 
 我们下面截取论文中的几个图，来**感性地**认识一下  pruned RNN-T。
 
-![](./pic/2022-06-22-figure.png)
+![](https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pic/2022-06-17-figure.png)
 
 图1（a）是针对标准的 RNN-T，图中所有的结点都参与了RNN-T loss 的计算。
 
@@ -132,7 +132,7 @@ RNN-T 模型最后一层的输出是一个 4-D 的 tensor，维度是 `(N, T, U,
 
 在论文中，我们对比了 pruned RNN-T 和 常用的开源 RNN-T loss 实现的性能。结果如表 1 和 表 2 所示。我们可以看出，不管是在训练时间还是在内存使用量上， pruned RNN-T 与其他实现相比，都有很大的优势。
 
-![](./pic/2022-06-22-table.png)
+![](https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pic/2022-06-17-table.png)
 
 Bechmark 的代码已开源在如下 repo 中: [ransducer-loss-benchmarking](https://github.com/csukuangfj/transducer-loss-benchmarking)
 
@@ -140,7 +140,7 @@ Bechmark 的代码已开源在如下 repo 中: [ransducer-loss-benchmarking](htt
 
 表 3 对比了 pruned RNN-T 和  optimized_transducer 在 LibriSpeech 数据集上的训练时间和性能。我们可以看出，在不损失性能的前提下，pruned RNN-T 在训练速度上有绝对的优势。
 
-![](./pic/2022-06-22-table-2.png)
+![](https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pic/2022-06-17-table-2.png)
 
 在提交论文后，我们对使用的模型做了进一步的优化。截止目前，在**不使用任何外部语言模型**的情况下，pruned RNN-T 在 LibriSpeech test-clean 测试集 上的 WER 是 **2.00**， 在 test-other 上 的 WER 是 4.63。
 
