@@ -134,7 +134,7 @@ RNN-T 模型最后一层的输出是一个 4-D 的 tensor，维度是 `(N, T, U,
 
 ![](https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pic/2022-06-17-table.png)
 
-Bechmark 的代码已开源在如下 repo 中: [ransducer-loss-benchmarking](https://github.com/csukuangfj/transducer-loss-benchmarking)
+Bechmark 的代码已开源在如下 repo 中: [transducer-loss-benchmarking](https://github.com/csukuangfj/transducer-loss-benchmarking)
 
 > 小编注: 论文中，我们只列出了若干个常用的开源实现。上述 repo 中，我们对比了更多的开源实现。
 
