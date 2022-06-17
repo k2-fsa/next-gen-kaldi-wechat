@@ -1,10 +1,11 @@
 ## Introduction
 
-This repo saves the manuscript for our WeChat official account.
+This repo saves the manuscript for the posts in our [WeChat](https://weixin.qq.com/)
+official account.
 
 **Caution**: It is in Chinese.
 
-You can scan the following QR code to follow our WeChat official account
+You can scan the following QR code to follow our official account on WeChat.
 
 ![](./wechat-official-account-qr-code.png)
 
