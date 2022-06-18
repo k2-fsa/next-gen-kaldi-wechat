@@ -56,11 +56,11 @@ RNN-T 模型最后一层的输出是一个 4-D 的 tensor，维度是 `(N, T, U,
 我们对上述方法提供了一个开源的实现，链接如下:
 [optimized_transducer](https://github.com/csukuangfj/optimized_transducer)
 
-相关 Benchmark 数据表明，这种方法在所有**标准的 RNN-T** 开源实现中，所需内存最低。
+相关 benchmark 数据表明，这种方法在所有**标准的 RNN-T** 开源实现中，所需内存最低。
 
 ## 我们提出的方法
 
-新一代 Kaldi 团队提出的 **pruned RNN-T**， 采用了一种截然不同的处理方式来降低内存使用量。相关 bechmark 结果表明，pruned RNN-T 具有如下特点:
+新一代 Kaldi 团队提出的 **pruned RNN-T**， 采用了一种截然不同的处理方式来降低内存使用量。相关 benchmark 结果表明，pruned RNN-T 具有如下特点:
 
 - 多
 - 快
@@ -88,7 +88,7 @@ RNN-T 模型最后一层的输出是一个 4-D 的 tensor，维度是 `(N, T, U,
 
 那么，pruned RNN-T 究竟是怎么做到 “多快好省”的呢？
 
-**简单直白**一点的说，pruned RNN-T 改变了 RNN-T 模型中最后一层的输出维度：
+**简单直白**一点地说，pruned RNN-T 改变了 RNN-T 模型中最后一层的输出维度：
 - 从 `(N, T, U, C)` 变成了 `(N, T, S, C)`
 
 其中，`S` 是用户指定的一个参数。我们所做的实验中，一般选用 5；而 `U` 则一般是几十甚至上百。
@@ -106,9 +106,9 @@ RNN-T 模型最后一层的输出是一个 4-D 的 tensor，维度是 `(N, T, U,
 
 图2 显示了图 1（a）中每个结点在训练时某一时刻的梯度。我们可以看到，随着训练的进行，靠近对角线上的结点对计算起到的作用最大。也就是说，不同位置的结点，在训练中起到的作用不同。
 
-图1（b）则是针对 pruned RNN-T，图中只有部分节点参与了 RNN-T loss 的计算。
+图1（b）则是针对 pruned RNN-T，图中只有部分结点参与了 RNN-T loss 的计算。
 
-参与计算的节点数量越少，所需的计算量则越少、计算速度就越快，并且所需的内存也越少。
+参与计算的结点数量越少，所需的计算量则越少、计算速度就越快，并且所需的内存也越少。
 
 那么，问题就来了：
 - 哪些结点应该被选出来参与计算呢？
@@ -146,7 +146,7 @@ Bechmark 的代码已开源在如下 repo 中: [transducer-loss-benchmarking](ht
 
 关于 RTF 方面，我们使用 Colab notebook 里面提供的 GPU 进行测试，对 LibriSpeech test-clean进行解码。得到的 **RTF** 是 **0.0090** (使用greedy search)， WER 是 2.05。Colab notebook 的访问链接如下: [Colab notebook](https://colab.research.google.com/drive/1JX5Ph2onYm1ZjNP_94eGqZ-DIRMLlIca?usp=sharing)
 
-> 小编注: Colab notebook 提供的 GPU 型号是 Tesla T4, RAM 大小是 14.75 GB。如果你有更大 RAM 的 GPU, 例如如 32 GB 的 V100，那么你得到的 RTF 会更低。
+> 小编注: Colab notebook 提供的 GPU 型号是 Tesla T4, RAM 大小是 14.75 GB。如果你有更大 RAM 的 GPU, 例如 32 GB 的 V100，那么你得到的 RTF 会更低。
 
 ## 总结
 
