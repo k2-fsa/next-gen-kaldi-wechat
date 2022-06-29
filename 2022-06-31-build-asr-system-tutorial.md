@@ -1,5 +1,5 @@
 # 如何基于新一代Kaldi框架快速搭建服务端ASR系统
->本文将介绍如何基于新一代Kaldi框架快速搭建一个服务端的ASR系统，包括数据准备、构建recipe训练测试、服务端部署运行。
+>本文将介绍如何基于新一代 Kaldi 框架快速搭建一个服务端的ASR系统，包括数据准备、构建recipe训练测试、服务端部署运行。
 >
 > 更多内容建议参考：
 > 
@@ -21,7 +21,8 @@
 
 为了更加形象、具体地描述这个过程，本文以构建一个基于WenetSpeech数据集的[pruned transducer stateless2 recipe](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR, "pruned transducer stateless2 recipe")为例，希望尽可能为读者详细地描述这一过程，也希望读者能够在本文的基础上能够无障碍地迁移到其他数据集的处理、训练和部署使用上去。
 
-(注：使用者应该事先安装好k2、icefall、lhotse、sherpa)
+(注：本文描述的过程和展示的代码更多的是为了描述功能，而非详细的实现过程，详细的实现代码请读者自行参考[egs/wenetspeech/ASR](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR, "pruned transducer stateless2 recipe"), 另外，使用者应该事先安装好k2、icefall、lhotse、sherpa)
+
 ### 第一步：数据准备和处理
 对于数据准备和处理部分，所有的运行指令都集成在文件[prepare.sh](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/prepare.sh "prepare.sh")中，主要的作用可以总结为两个：`准备音频文件并进行特征提取`、`构建语言建模文件`。
 
@@ -46,6 +47,7 @@ download/WenetSpeech/audio
 └── train
 ```
 查看WenetSpeech.json文件，部分信息如下所示，WenetSpeech.json中包含了音频文件路径和相关的监督信息：
+
 ```
 {
     ............
@@ -85,9 +87,10 @@ download/WenetSpeech/audio
 
     ............
 ```
+(注：WenetSpeech中文数据集中包含了S，M，L三个不同规模的训练数据集)
 > - 利用lhotse生成manifests
 
-关于lhotse是如何将原始数据处理成jsonl.gz格式文件的，这里可以参考文件[wenet_speech.py](https://github.com/lhotse-speech/lhotse/blob/master/lhotse/recipes/wenet_speech.py, "wenet_speech.py")， 其主要功能是生成recordings和supervisions的jsonl.gz文件
+关于lhotse是如何将原始数据处理成jsonl.gz格式文件的，这里可以参考文件[wenet_speech.py](https://github.com/lhotse-speech/lhotse/blob/master/lhotse/recipes/wenet_speech.py, "wenet_speech.py")， 其主要功能是生成recordings和supervisions的jsonl.gz格式文件
 ```
 >> lhotse prepare wenet-speech download/WenetSpeech data/manifests -j 15
 >> tree data/manifests -L 1
@@ -112,7 +115,7 @@ wenetspeech_recordings_S.jsonl.gz:
 wenetspeech_supervisions_S.jsonl.gz:
 - ![wenetspeech_supervisions_S.jsonl.gz](pic/pic_lms/wenetspeech_supervisions_S.png)
 
-由上面两幅图可知，recordings包含了音频文件信息，包括，supervisions包含了文本监督信息。
+由上面两幅图可知，recordings用于描述音频文件信息，包含了音频样本的id、具体路径、通道、采样率、子样本数和时长等。supervisions用于记录监督信息，包含了音频样本对应的id、起始时间、时长、通道、文本和语言类型等。
 
 接下来，我们将对音频数据提取特征。
 
@@ -277,10 +280,166 @@ ZSU Z S U
 至此，第一步全部完成。对于不同数据集来说，其基本思路也是类似的，在数据准备和处理阶段，我们主要做两件事情：`准备音频文件并进行特征提取`、`构建语言建模文件`。这里我们使用的范例是中文汉语，建模单元是字，在英文数据中，我们一般用BPE作为建模单元，具体的可参考[egs/librispeech/ASR/prepare.sh](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR, "egs/librispeech/ASR/prepare.sh") 。
 
 ### 第二步：模型训练和测试
+在完成第一步的基础上，我们可以进入到第二步，即模型的训练和测试了。这里，我们根据操作流程和功能，将第二步划分为更加具体的几步：文件准备、数据加载、模型训练、解码测试。
+
+> - 文件准备
+
+首先，创建pruned_transducer_stateless2的文件夹。
+```
+mkdir pruned_transducer_stateless2
+cd pruned_transducer_stateless2
+```
+其次，需要准备数据读取、模型、训练、测试、模型导出等脚本文件，在这里，我们在[egs/librispeech/ASR/pruned_transducer_stateless2](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless2, "egs/librispeech/ASR/pruned_transducer_stateless2")的基础上创建我们需要的文件。
+
+对于公共的脚本文件(即不需要修改的文件)，我们可以直接用软链接直接复制过来，如：
+```
+ln -s ../../../librispeech/ASR/pruned_transducer_stateless2/conformer.py .
+```
+
+其他相同文件的操作类似，另外，读者也可以使用自己的模型，替换本框架内提供的模型文件即可。
+
+对于不同的脚本文件(即因为数据集或者语言不同而需要修改的文件)，我们先从egs/librispeech/ASR/pruned_transducer_stateless2中复制过来，然后再进行小范围的修改，如：
+```
+cp -r ../../../librispeech/ASR/pruned_transducer_stateless2/train.py .
+```
+在本示例中，我们需要对train.py中的数据读取、graph_compiler(图编译器)及
+vocab_size的获取等部分进行修改，如(截取部分代码，便于读者直观认识)：
+
+数据读取：
+```
+    ............
+    from asr_datamodule import WenetSpeechAsrDataModule
+    ............
+    wenetspeech = WenetSpeechAsrDataModule(args)
+
+    train_cuts = wenetspeech.train_cuts()
+    valid_cuts = wenetspeech.valid_cuts()
+    ............
+```
+graph_compiler:
+```
+    ............
+    y = graph_compiler.texts_to_ids(texts)
+    if type(y) == list:
+        y = k2.RaggedTensor(y).to(device)
+    else:
+        y = y.to(device)
+    ............
+    lexicon = Lexicon(params.lang_dir)
+    graph_compiler = CharCtcTrainingGraphCompiler(
+        lexicon=lexicon,
+        device=device,
+    )
+    ............
+```
+vocab_size的获取:
+```
+    ............
+    params.blank_id = lexicon.token_table["<blk>"]
+    params.vocab_size = max(lexicon.tokens) + 1
+    ............
+```
+更加详细的修改后的train.py可参考[egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py, "egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py") 。
+其他decode.py、pretrained.py、export.py等需要修改的文件也可以参照上述进行类似的修改和调整。
+
+(注：在准备文件时，应该遵循`相同的文件不重复造轮子、不同的文件尽量小改、缺少的文件自己造`的原则。icefall中大多数函数和功能文件在很多数据集上都进行了测试和验证，都是可以直接迁移使用的。)
+
+> - 数据加载
+
+实际上，对于数据加载这一步，也可以视为文件准备的一部分，即修改文件[asr_datamodule.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/asr_datamodule.py, "asr_datamodule.py")，但是考虑到不同数据集的asr_datamodule.py都不一样，所以这里单独拿出来讲述。
+
+首先，这里以[egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py](https://github.com/k2-fsa/icefall/blob/master/egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py, "egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py")为基础，在这个上面进行修改：
+```
+cp -r ../../../librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py .
+```
+
+其次，修改函数类的名称，如这里将 `LibriSpeechAsrDataModule` 修改为 `WenetSpeechAsrDataModule` ，并读取第一步中生成的jsonl.gz格式的训练测试文件。如本示例中，第一步生成了data/fbank/cuts_L.jsonl.gz，我们用load_manifest_lazy读取它：
+```
+    ............
+        group.add_argument(
+            "--training-subset",
+            type=str,
+            default="L",
+            help="The training subset for using",
+        )
+    ............
+    @lru_cache()
+    def train_cuts(self) -> CutSet:
+        logging.info("About to get train cuts")
+        cuts_train = load_manifest_lazy(
+            self.args.manifest_dir
+            / f"cuts_{self.args.training_subset}.jsonl.gz"
+        )
+        return cuts_train
+    ............
+```
+其他的训练测试jsonl.gz文件的读取和上述类似，另外，对于train_dataloaders、valid_dataloaders和test_dataloaders等几个函数基本是不需要修改的，如有需要，调整其中的具体参数即可。
+
+最后，调整修改后的asr_datamodule.py和train.py联合调试，把WenetSpeechAsrDataModule导入到train.py，运行train.py，如果在数据读取和加载过程中不报错，那么数据加载部分就完成了。
+
+另外，在数据加载的过程中，我们也有必要对数据样本的时长进行统计，并过滤一些过短、过长且占比极小的样本，这样可以使我们的训练过程更加稳定。如在本示例中，我们对WenetSpeech的样本进行了时长统计(L数据集太大，这里没有对它进行统计)，具体的可参考[display_manifest_statistics.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/display_manifest_statistics.py, "display_manifest_statistics.py")，统计的部分结果如下：
+```
+............
+Starting display the statistics for ./data/fbank/cuts_M.jsonl.gz
+Cuts count: 4543341
+Total duration (hours): 3021.1
+Speech duration (hours): 3021.1 (100.0%)
+***
+Duration statistics (seconds):
+mean    2.4
+std     1.6
+min     0.2
+25%     1.4
+50%     2.0
+75%     2.9
+99%     8.0
+99.5%   8.8
+99.9%   12.1
+max     405.1
+............
+Starting display the statistics for ./data/fbank/cuts_TEST_NET.jsonl.gz
+Cuts count: 24774
+Total duration (hours): 23.1
+Speech duration (hours): 23.1 (100.0%)
+***
+Duration statistics (seconds):
+mean    3.4
+std     2.6
+min     0.1
+25%     1.4
+50%     2.4
+75%     4.8
+99%     13.1
+99.5%   14.5
+99.9%   18.5
+max     33.3
+```
+根据上面的统计结果，我们在train.py中设置了样本的最大时长为15.0 seconds:
+```
+    ............
+    def remove_short_and_long_utt(c: Cut):
+        # Keep only utterances with duration between 1 second and 15.0 seconds
+        #
+        # Caution: There is a reason to select 15.0 here. Please see
+        # ../local/display_manifest_statistics.py
+        #
+        # You should use ../local/display_manifest_statistics.py to get
+        # an utterance duration distribution for your dataset to select
+        # the threshold
+        return 1.0 <= c.duration <= 15.0
+
+    train_cuts = train_cuts.filter(remove_short_and_long_utt)
+    ............
+```
+
+> - 模型训练
+
+
+> - 解码测试
 
 
 ### 第三步：服务端部署演示
 
 
 ## 总结
-在本文中，笔者试图以WenetSpeech的pruned transducer stateless2 recipe为线索，贯通k2、icefall、lhotse、sherpa四个独立子项目, 将新一代Kaldi框架的数据准备和处理、模型训练和测试、服务端部署演示等流程一体化地全景展示出来，希望能够更好地帮助读者使用新一代Kaldi语音识别开源框架，真正做到上手即用。
+在本文中，笔者试图以 WenetSpeech 的 pruned transducer stateless2 recipe 构建、训练、部署的全流程为线索，贯通k2、icefall、lhotse、sherpa四个独立子项目, 将新一代Kaldi框架的数据准备和处理、模型训练和测试、服务端部署演示等流程一体化地全景展示出来，形成一个简易的教程，希望能够更好地帮助读者使用新一代Kaldi语音识别开源框架，真正做到上手即用。
