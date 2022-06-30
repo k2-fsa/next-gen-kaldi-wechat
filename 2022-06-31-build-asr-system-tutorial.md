@@ -1,5 +1,5 @@
-# 如何基于新一代Kaldi框架快速搭建服务端ASR系统
->本文将介绍如何基于新一代 Kaldi 框架快速搭建一个服务端的ASR系统，包括数据准备、构建recipe训练测试、服务端部署运行。
+# 如何基于新一代 Kaldi 框架快速搭建服务端ASR系统
+>本文将介绍如何基于新一代 Kaldi 框架快速搭建一个服务端的ASR系统，包括数据准备、模型训练测试、服务端部署运行。
 >
 > 更多内容建议参考：
 > 
@@ -354,7 +354,7 @@ cp -r ../../../librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py .
 ```
 
 其次，修改函数类的名称，如这里将 `LibriSpeechAsrDataModule` 修改为 `WenetSpeechAsrDataModule` ，并读取第一步中生成的jsonl.gz格式的训练测试文件。如本示例中，第一步生成了data/fbank/cuts_L.jsonl.gz，我们用load_manifest_lazy读取它：
-```
+```python
     ............
         group.add_argument(
             "--training-subset",
@@ -415,7 +415,7 @@ min     0.1
 max     33.3
 ```
 根据上面的统计结果，我们在train.py中设置了样本的最大时长为15.0 seconds:
-```
+```python
     ............
     def remove_short_and_long_utt(c: Cut):
         # Keep only utterances with duration between 1 second and 15.0 seconds
@@ -434,12 +434,215 @@ max     33.3
 
 > - 模型训练
 
+在完成相关必要文件准备和数据加载成功的基础上，我们可以开始进行模型的训练了。在训练之前，我们需要根据我们的训练数据的规模和 算力条件(比如GPU显卡的型号、GPU显卡的数量、每个卡的显存大小等)去调整相关的参数。
+
+这里，们将主要介绍几个比较关键的参数，其中，world-size表示并行计算的GPU数量，max-duration表示每个batch中所有音频样本的最大时长之和，num-epochs表示训练的epochs数，valid-interval表示在验证集上计算loss的iterations间隔，model-warm-step表示模型热启动的iterations数，use-fp16表示是否用16位的浮点数进行训练等，其他参数可以参考[train.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py, "train.py")具体的参数解释和说明。
+
+在这个示例中，我们用WenetSpeech中L subset训练集来进行训练，并综合考虑该数据集的规模和我们的算力条件，训练参数设置和运行指令如下(没出现的参数表示使用代码默认的参数值)：
+```bash
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"
+
+python3 pruned_transducer_stateless2/train.py \
+  --lang-dir data/lang_char \
+  --exp-dir pruned_transducer_stateless2/exp \
+  --world-size 8 \
+  --num-epochs 15 \
+  --start-epoch 0 \
+  --max-duration 180 \
+  --valid-interval 3000 \
+  --model-warm-step 3000 \
+  --save-every-n 8000 \
+  --training-subset L
+```
+
+到这里，如果能看到训练过程中的相关 loss 记录，则说明训练已经成功开始了。
+
+另外，如果在训练过程中，出现了`Out of Memory`的报错信息导致训练中止，可以尝试使用更小一些的max-duration值。如果还有其他的报错导致训练中止，一方面希望读者可以灵活地根据实际情况修改或调整某些参数，另一方面，读者可以在相关讨论群或者在icefall上通过issues 和 pull request等形式进行反馈。
+
+如果程序在中途中止训练，我们也不必从头开始训练，可以通过加载保存的某个epoch-X.pt 或 checkpoint-X.pt 模型文件（包含了模型参数、采样器和学习率等参数）继续训练，如（加载epoch-3.pt的模型文件继续训练）：
+
+```bash
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"
+
+python3 pruned_transducer_stateless2/train.py \
+  --lang-dir data/lang_char \
+  --exp-dir pruned_transducer_stateless2/exp \
+  --world-size 8 \
+  --num-epochs 15 \
+  --start-batch 3 \
+  --max-duration 180 \
+  --valid-interval 3000 \
+  --model-warm-step 3000 \
+  --save-every-n 8000 \
+  --training-subset L
+```
+这样即使程序中断了，我们也不用从零开始再次训练模型。
+
+另外，我们也不用从第一个batch进行迭代训练，因为采样器中保存了迭代的batch数，我们可以设置参数`--start-batch xxx`, 使得我们可以从某一个epoch的某个batch处开始训练，这大大节省了训练时间和计算资源，尤其是在训练大规模数据集时。
+
+在icefall中，还有更多类似这样人性化的训练设置，等待大家去发现和使用。
+
+当训练完毕以后，我们可以得到相关的训练 log 文件和 tensorboard 损失记录，可以在终端使用如下指令：
+```bash 
+cd pruned_transducer_stateless2/exp
+
+tensorboard dev upload --logdir tensorboard
+```
+如在使用上述指令之后，我们可以在终端看到如下信息：
+```
+............
+To stop uploading, press Ctrl-C.
+
+New experiment created. View your TensorBoard at: https://tensorboard.dev/experiment/wM4ZUNtASRavJx79EOYYcg/
+
+[2022-06-30T15:49:38] Started scanning logdir.
+Uploading 4542 scalars...
+............
+```
+将上述显示的tensorboard记录查看网址复制到本地浏览器的网址栏中即可查看。如在本示例中，我们将 https://tensorboard.dev/experiment/QfaF3e53R1GWbPU4peQy8w/ 复制到本地浏览器的网址栏中，损失函数的tensorboard 记录如下：
+ - ![wenetspeech_L_tensorboard.png](pic/pic_lms/wenetspeech_L_tensorboard.png)
+
+ (PS: 读者可从上图发现，笔者在训练WenetSpeech L subset时，也因为某些原因中断了训练，但是，icefall中人性化的接续训练操作让笔者避免了从零开始训练，并且前后两个训练阶段的loss和learning rate曲线还连接地如此完美。)
 
 > - 解码测试
 
+当模型训练完毕，我们就可以进行解码测试了。
+
+在运行解码测试的指令之前，我们依然需要对 decode.py 进行如文件准备过程中对train.py 相似位置的修改和调整，这里将不具体讲述，修改后的文件可参考[decode.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/decode.py, "decode.py")。
+
+这里为了在测试过程中更快速地加载数据，我们对测试数据导出为webdataset要求的形式（注：这一步不是必须的，如果测试过程中速度比较快，这一步可以省略），操作如下：
+```python
+    ............
+    wenetspeech = WenetSpeechAsrDataModule(args)
+
+    dev = "dev"
+    ............
+
+    if not os.path.exists(f"{dev}/shared-0.tar"):
+        os.makedirs(dev)
+        dev_cuts = wenetspeech.valid_cuts()
+        export_to_webdataset(
+            dev_cuts,
+            output_path=f"{dev}/shared-%d.tar",
+            shard_size=300,
+        )
+    ............
+    dev_shards = [
+        str(path)
+        for path in sorted(glob.glob(os.path.join(dev, "shared-*.tar")))
+    ]
+    cuts_dev_webdataset = CutSet.from_webdataset(
+        dev_shards,
+        split_by_worker=True,
+        split_by_node=True,
+        shuffle_shards=True,
+    )
+    ............
+    dev_dl = wenetspeech.valid_dataloaders(cuts_dev_webdataset)
+    ............
+```
+同时，在asr_datamodule.py中修改test_dataloader函数，修改如下（注：这一步不是必须的，如果测试过程中速度比较快，这一步可以省略）：
+```python
+        ............
+        from lhotse.dataset.iterable_dataset import IterableDatasetWrapper
+
+        test_iter_dataset = IterableDatasetWrapper(
+            dataset=test,
+            sampler=sampler,
+        )
+        test_dl = DataLoader(
+            test_iter_dataset,
+            batch_size=None,
+            num_workers=self.args.num_workers,
+        )
+        return test_dl
+```
+待修改完毕，联合调试decode.py 和 asr_datamodule.py, 解码过程能正常加载数据即可。
+
+在进行解码测试时，icefall为我们提供了四种解码方式：greedy_search、beam_search、modified_beam_search 和 fast_beam_search，更为具体实现方式，可参考文件[beam_search.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py, "beam_search.py")。
+
+这里，因为建模单元的数量非常多（5500+），导致解码速度非常慢，所以，笔者不建议使用beam_search的解码方式。
+
+如在本示例中，如果使用greedy_search进行解码时，我们的解码指令如下 （
+关于如何使用其他的解码方式，读者可以自行参考decode.py）：
+```bash
+export CUDA_VISIBLE_DEVICES='0'
+python pruned_transducer_stateless2/decode.py \
+        --epoch 10 \
+        --avg 2 \
+        --exp-dir ./pruned_transducer_stateless2/exp \
+        --lang-dir data/lang_char \
+        --max-duration 100 \
+        --decoding-method greedy_search
+```
+
+运行上述指令进行解码，在终端将会展示如下内容（部分）：
+```
+............
+2022-06-30 16:58:17,232 INFO [decode.py:487] About to create model
+2022-06-30 16:58:17,759 INFO [decode.py:508] averaging ['pruned_transducer_stateless2/exp/epoch-9.pt', 'pruned_transducer_stateless2/exp/epoch-10.pt']
+............
+2022-06-30 16:58:42,260 INFO [decode.py:393] batch 0/?, cuts processed until now is 104
+2022-06-30 16:59:41,290 INFO [decode.py:393] batch 100/?, cuts processed until now is 13200
+2022-06-30 17:00:35,961 INFO [decode.py:393] batch 200/?, cuts processed until now is 27146
+2022-06-30 17:00:38,370 INFO [decode.py:410] The transcripts are stored in pruned_transducer_stateless2/exp/greedy_search/recogs-DEV-greedy_search-epoch-10-avg-2-context-2-max-sym-per-frame-1.txt
+2022-06-30 17:00:39,129 INFO [utils.py:410] [DEV-greedy_search] %WER 7.80% [51556 / 660996, 6272 ins, 18888 del, 26396 sub ]
+2022-06-30 17:00:41,084 INFO [decode.py:423] Wrote detailed error stats to pruned_transducer_stateless2/exp/greedy_search/errs-DEV-greedy_search-epoch-10-avg-2-context-2-max-sym-per-frame-1.txt
+2022-06-30 17:00:41,092 INFO [decode.py:440]
+For DEV, WER of different settings are:
+greedy_search   7.8     best for DEV
+............
+```
+
+这里，读者可能还有一个疑问，如何选取合适的epoch和avg参数，以保证平均模型的性能最佳呢？这里我们通过遍历所有的epoch和avg组合来搜索最好的平均模型，可以使用如下指令得到所有可能的平均模型的性能，然后进行找到最好的解码结果所对应的平均模型的epoch和avg即可，如：
+
+```bash
+export CUDA_VISIBLE_DEVICES="0"
+num_epochs=15
+for ((i=$num_epochs; i>=0; i--));
+do
+    for ((j=1; j<=$i; j++));
+    do
+        python3 pruned_transducer_stateless2/decode.py \
+            --exp-dir ./pruned_transducer_stateless2/exp \
+            --lang-dir data/lang_char \
+            --epoch $i \
+            --avg $j \
+            --max-duration 100 \
+            --decoding-method greedy_search
+    done
+done
+```
+以上方法仅供读者参考，读者可根据自己的实际情况进行修改和调整。目前，icefall也提供了一种新的平均模型参数的方法，性能更好，这里将不作细述，有兴趣可以参考文件[decode.py](https://github.com/k2-fsa/icefall/blob/master/egs/librispeech/ASR/pruned_transducer_stateless5/train.py, "decode.py")中的参数`--use-averaged-model`。
+
+至此，解码测试就完成了。使用者也可以通过查看 `egs/pruned_transducer_stateless2/exp/greedy_search` 中 `recogs-*.txt`、`errs-*.txt` 和 `wer-*.txt` 等文件，看看每个样本的具体解码结果和最终解码性能。
+
+
+本示例中，笔者的训练模型和测试结果可以参考[icefall_asr_wenetspeech_pruned_transducer_stateless2](https://huggingface.co/luomingshuang/icefall_asr_wenetspeech_pruned_transducer_stateless2, "icefall_asr_wenetspeech_pruned_transducer_stateless2")，读者可以在[icefall_asr_wenetspeech_pruned_transducer_stateless2_colab_demo](https://colab.research.google.com/drive/1EV4e1CHa1GZgEF-bZgizqI9RyFFehIiN?usp=sharing, "icefall_asr_wenetspeech_pruned_transducer_stateless2_colab_demo")上直接运行和测试提供的模型，这些仅供读者参考。
 
 ### 第三步：服务端部署演示
+
+在顺利完成第一步和第二步之后，我们就可以得到训练模型和测试结果了。接下来，笔者将讲述如何利用sherpa框架把sher训练得到的模型部署到服务端。
+
+为了将整个过程描述地更加清晰，笔者同样将第三步分为以下几步：`将训练好的模型编译为TorchScript代码`、`服务器终端运行`、`本地web端测试使用`。
+
+> - 将训练好的模型编译为TorchScript代码
+
+这里，我们使用`torch.jit.script`对模型进行编译，使得`nn.Module`形式的模型在生产环境下变得可用，具体的代码实现可参考文件[export.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/export.py, "export.py")，操作指令如下：
+
+```bash
+python3 pruned_transducer_stateless2/export.py \
+    --exp-dir ./pruned_transducer_stateless2/exp \
+    --lang-dir data/lang_char \
+    --epoch 10 \
+    --avg 2 \
+    --jit True
+```
+运行上述指令，我们可以在 `egs/wenetspeech/ASR/pruned_transducer_stateless2/exp` 中得到一个
+
 
 
 ## 总结
 在本文中，笔者试图以 WenetSpeech 的 pruned transducer stateless2 recipe 构建、训练、部署的全流程为线索，贯通k2、icefall、lhotse、sherpa四个独立子项目, 将新一代Kaldi框架的数据准备和处理、模型训练和测试、服务端部署演示等流程一体化地全景展示出来，形成一个简易的教程，希望能够更好地帮助读者使用新一代Kaldi语音识别开源框架，真正做到上手即用。
+
+(PS：全局终！笔者也到了猝死的边缘...)
