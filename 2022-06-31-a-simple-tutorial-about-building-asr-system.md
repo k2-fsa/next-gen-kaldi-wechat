@@ -297,7 +297,7 @@ ZSU Z S U
 
 至此，第一步全部完成。对于不同数据集来说，其基本思路也是类似的。在数据准备和处理阶段，我们主要做两件事情：`准备音频文件并进行特征提取`、`构建语言建模文件`。
 
-这里我们使用的范例是中文汉语，建模单元是字，在英文数据中，我们一般用 BPE 作为建模单元，具体的可参考 [egs/librispeech/ASR/prepare.sh](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR "egs/librispeech/ASR/prepare.sh") 。
+这里我们使用的范例是中文汉语，建模单元是字。在英文数据中，我们一般用 BPE 作为建模单元，具体的可参考 [egs/librispeech/ASR/prepare.sh](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR "egs/librispeech/ASR/prepare.sh") 。
 
 ### 第二步：模型训练和测试
 在完成第一步的基础上，我们可以进入到第二步，即模型的训练和测试了。这里，我们根据操作流程和功能，将第二步划分为更加具体的几步：文件准备、数据加载、模型训练、解码测试。
