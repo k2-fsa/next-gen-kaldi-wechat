@@ -27,9 +27,9 @@
 
 本文介绍的 ASR 系统是基于 RNN-T 框架且不涉及外加的语言模型。所以，本文将不涉及 WFST 等语言模型的内容，如后期有需要，会在后面的文章中另行讲述。
 
-为了更加形象、具体地描述这个过程，本文以构建一个基于 WenetSpeech 数据集训练的 [pruned transducer stateless2](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR "pruned transducer stateless2 recipe") recipe 为例，希望尽可能为读者详细地描述这一过程，也希望读者能够在本文的基础上能够无障碍地迁移到其他数据集的处理、训练和部署使用上去。
+为了更加形象、具体地描述这个过程，本文以构建一个基于 WenetSpeech 数据集训练的 [pruned transducer stateless2](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR "pruned transducer stateless2 recipe") recipe 为例，希望尽可能为读者详细地描述这一过程，也希望读者在本文的基础上能够无障碍地迁移到其他数据集的处理、训练和部署使用上去。
 
-本文描述的过程和展示的代码更多的是为了描述功能，而非详细的实现过程，详细的实现代码请读者自行参考 [egs/wenetspeech/ASR](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR "pruned transducer stateless2 recipe")。
+本文描述的过程和展示的代码更多的是为了描述功能，而非详细的实现过程。详细的实现代码请读者自行参考 [egs/wenetspeech/ASR](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR "pruned transducer stateless2 recipe")。
 
 **Note**: 使用者应该事先安装好 `k2`、`icefall`、`lhotse`、`sherpa`。
 
@@ -153,7 +153,7 @@ python3 ./local/compute_fbank_wenetspeech_splits.py \
     --num-splits 1000
 ```
 
-最后，待提取完每个切片数据集的特征之后，将所有切片数据集的特征数据合并成一个总的特征数据集：
+最后，待提取完每个切片数据集的特征后，将所有切片数据集的特征数据合并成一个总的特征数据集：
 
 ```bash
 # 这里的 L 也可修改为 M 或 S, 表示训练数据子集
@@ -252,9 +252,9 @@ python3 ./local/prepare_words.py \
 阿安 233
 ............
 ```
-##### 生成 tokens.txt 和词典文件 Linv.pt
+##### 生成 tokens.txt 和 lexicon.txt
 
-这里生成 `tokens.txt` 和生成 `Linv.pt` 的函数文件可参考 [prepare_char.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/prepare_char.py "prepare_char.py") 。
+这里生成 `tokens.txt` lexicon.txt 的函数文件可参考 [prepare_char.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/prepare_char.py "prepare_char.py") 。
 
 ```bash
 python3 ./local/prepare_char.py \
@@ -295,7 +295,7 @@ ZSU Z S U
 ............
 ```
 
-至此，第一步全部完成。对于不同数据集来说，其基本思路也是类似的，在数据准备和处理阶段，我们主要做两件事情：`准备音频文件并进行特征提取`、`构建语言建模文件`。
+至此，第一步全部完成。对于不同数据集来说，其基本思路也是类似的。在数据准备和处理阶段，我们主要做两件事情：`准备音频文件并进行特征提取`、`构建语言建模文件`。
 
 这里我们使用的范例是中文汉语，建模单元是字，在英文数据中，我们一般用 BPE 作为建模单元，具体的可参考 [egs/librispeech/ASR/prepare.sh](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR "egs/librispeech/ASR/prepare.sh") 。
 
