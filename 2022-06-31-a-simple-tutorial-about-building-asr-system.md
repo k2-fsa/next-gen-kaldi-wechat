@@ -254,7 +254,7 @@ python3 ./local/prepare_words.py \
 ```
 ##### 生成 tokens.txt 和 lexicon.txt
 
-这里生成 `tokens.txt` lexicon.txt 的函数文件可参考 [prepare_char.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/prepare_char.py "prepare_char.py") 。
+这里生成 `tokens.txt` 和 `lexicon.txt` 的函数文件可参考 [prepare_char.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/prepare_char.py "prepare_char.py") 。
 
 ```bash
 python3 ./local/prepare_char.py \
