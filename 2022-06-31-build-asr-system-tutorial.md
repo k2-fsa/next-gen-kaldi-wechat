@@ -56,12 +56,9 @@ download/WenetSpeech/audio
 ├── test_net
 └── train
 ```
-查看 `WenetSpeech.json` 文件，部分信息如下所示，`WenetSpeech.json` 中包含了音频文件路径和相关的监督信息：
+`WenetSpeech.json` 中包含了音频文件路径和相关的监督信息，我们可以查看 `WenetSpeech.json` 文件，部分信息如下所示：
 
 ```json
-{
-    ............
-
     "audios": [
         {
             "aid": "Y0000000000_--5llN02F84",
@@ -93,8 +90,6 @@ download/WenetSpeech/audio
                         "L"
                     ],
                     "text": "挺好的"
-                },
-    ............
 ```
 
 (注：WenetSpeech 中文数据集中包含了 S，M，L 三个不同规模的训练数据集)
