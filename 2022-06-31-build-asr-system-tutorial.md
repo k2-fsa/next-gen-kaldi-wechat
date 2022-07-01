@@ -671,11 +671,11 @@ done
 
 在顺利完成第一步和第二步之后，我们就可以得到训练模型和测试结果了。
 
-接下来，笔者将讲述如何利用 sherpa 框架把训练得到的模型部署到服务端，笔者强烈建议读者参考和阅读 [sherpa使用文档](https://k2-fsa.github.io/sherpa/, "sherpa使用文档")，该框架还在不断地更新和优化中，感兴趣的读者可以保持关注并参与开发中来。
+接下来，笔者将讲述如何利用 sherpa 框架把训练得到的模型部署到服务端，笔者强烈建议读者参考和阅读 [sherpa使用文档](https://k2-fsa.github.io/sherpa/, "sherpa使用文档")，该框架还在不断地更新和优化中，感兴趣的读者可以保持关注并参与到开发中来。
 
 本示例中，我们用的 sherpa 版本为 [sherpa-for-wenetspeech-pruned-rnnt2](https://github.com/k2-fsa/sherpa/tree/9da5b0779ad6758bf3150e1267399fafcdef4c67, "sherpa-for-wenetspeech-pruned-rnnt2")。
 
-为了将整个过程描述地更加清晰，笔者同样将第三步细分为以下几步：`将训练好的模型编译为 TorchScript 代码`、`服务器终端运行`、`本地web端测试使用`。
+为了将整个过程描述地更加清晰，笔者同样将第三步细分为以下几步：`将训练好的模型编译为 TorchScript 代码`、`服务器终端运行`、`本地 web 端测试使用`。
 
 > - 将训练好的模型编译为 TorchScript 代码
 
