@@ -14,7 +14,7 @@
 
 阅读过前面几期公众文的读者可能都知道新一代 Kaldi 框架主要包含了四个不同的子项目：`k2`、`icefall`、`lhotse`、`sherpa`。其中，`k2` 是核心算法库；`icefall` 是数据集训练测试示例脚本；`lhotse` 是语音数据处理工具集；`sherpa` 是服务端框架，四个子项目共同构成了新一代 Kaldi 框架。
 
-另一方面，截止目前，新一代 Kaldi 框架在很多公开数据集上都获得了很有竞争力的识别结果，在 WenetSpeech 和 GigaSpeech 上甚至都获得了SOTA的性能。
+另一方面，截止目前，新一代 Kaldi 框架在很多公开数据集上都获得了很有竞争力的识别结果，在 WenetSpeech 和 GigaSpeech 上甚至都获得了 SOTA 的性能。
 
 看到这，相信很多小伙伴都已经摩拳擦掌、跃跃欲试了，那么本文的目标就是试图贯通新一代 Kaldi 的四个子项目，为快速搭建一个服务端的 ASR 系统提供一个简易的教程。希望看完本文的小伙伴都能顺利搭建出自己的 ASR 系统。
 
@@ -25,21 +25,22 @@
  - 模型训练和测试
  - 服务端部署演示
 
-本文介绍的 ASR 系统是基于 RNN-T 框架且不涉及外加的语言模型，所以，本文将不涉及 WFST 等语言模型的内容，如后期有需要，会在后面的文章中另行讲述。
+本文介绍的 ASR 系统是基于 RNN-T 框架且不涉及外加的语言模型。所以，本文将不涉及 WFST 等语言模型的内容，如后期有需要，会在后面的文章中另行讲述。
 
-为了更加形象、具体地描述这个过程，本文以构建一个基于 WenetSpeech 数据集的 [pruned transducer stateless2 recipe](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR, "pruned transducer stateless2 recipe") 为例，希望尽可能为读者详细地描述这一过程，也希望读者能够在本文的基础上能够无障碍地迁移到其他数据集的处理、训练和部署使用上去。
+为了更加形象、具体地描述这个过程，本文以构建一个基于 WenetSpeech 数据集训练的 [pruned transducer stateless2](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR "pruned transducer stateless2 recipe") recipe 为例，希望尽可能为读者详细地描述这一过程，也希望读者能够在本文的基础上能够无障碍地迁移到其他数据集的处理、训练和部署使用上去。
 
-本文描述的过程和展示的代码更多的是为了描述功能，而非详细的实现过程，详细的实现代码请读者自行参考 [egs/wenetspeech/ASR](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR, "pruned transducer stateless2 recipe")。
+本文描述的过程和展示的代码更多的是为了描述功能，而非详细的实现过程，详细的实现代码请读者自行参考 [egs/wenetspeech/ASR](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR "pruned transducer stateless2 recipe")。
 
-**Note**: 使用者应该事先安装好 k2、icefall、lhotse、sherpa，这里我们建议读者使用`python3 setup.py install`来安装 k2 。
+**Note**: 使用者应该事先安装好 `k2`、`icefall`、`lhotse`、`sherpa`。
 
 ### 第一步：数据准备和处理
 对于数据准备和处理部分，所有的运行指令都集成在文件 [prepare.sh](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/prepare.sh "prepare.sh") 中，主要的作用可以总结为两个：`准备音频文件并进行特征提取`、`构建语言建模文件`。
 
 #### 准备音频文件并进行特征提取
 
-（注：在这里我们也用了 musan 数据集对训练数据进行增广，具体的可以参考 prepare.sh 中对 musan 处理和使用的相关指令，这里不针对介绍。）
-> - 下载并解压数据
+（注：在这里我们也用了 musan 数据集对训练数据进行增广，具体的可以参考 [prepare.sh](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/prepare.sh "prepare.sh") 中对 musan 处理和使用的相关指令，这里不针对介绍。）
+
+##### 下载并解压数据
 
 为了统一文件名，这里将数据包文件名变为 WenetSpeech, 其中 audio 包含了所有训练和测试的音频数据
 ```bash
@@ -94,9 +95,9 @@ download/WenetSpeech/audio
 
 （注：WenetSpeech 中文数据集中包含了 S，M，L 三个不同规模的训练数据集）
 
-> - 利用 lhotse 生成 manifests
+##### 利用 lhotse 生成 manifests
 
-关于 lhotse 是如何将原始数据处理成 `jsonl.gz` 格式文件的，这里可以参考文件[wenet_speech.py](https://github.com/lhotse-speech/lhotse/blob/master/lhotse/recipes/wenet_speech.py, "wenet_speech.py")， 其主要功能是生成 `recordings` 和 `supervisions` 的 `jsonl.gz` 格式文件
+关于 lhotse 是如何将原始数据处理成 `jsonl.gz` 格式文件的，这里可以参考文件[wenet_speech.py](https://github.com/lhotse-speech/lhotse/blob/master/lhotse/recipes/wenet_speech.py "wenet_speech.py")， 其主要功能是生成 `recordings` 和 `supervisions` 的 `jsonl.gz` 格式文件
 
 ```bash
 >> lhotse prepare wenet-speech download/WenetSpeech data/manifests -j 15
@@ -118,29 +119,29 @@ download/WenetSpeech/audio
 这里，可用 `vim` 对 `recordings` 和 `supervisions` 的 `jsonl.gz` 文件进行查看, 其中：
 
 wenetspeech_recordings_S.jsonl.gz:
-- ![wenetspeech_recordings_S.jsonl.gz](pic/pic_lms/wenetspeech_recordings_S.png)
+- ![wenetspeech_recordings_S.jsonl.gz](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/pic_lms/wenetspeech_recordings_S.png)
 
 wenetspeech_supervisions_S.jsonl.gz:
-- ![wenetspeech_supervisions_S.jsonl.gz](pic/pic_lms/wenetspeech_supervisions_S.png)
+- ![wenetspeech_supervisions_S.jsonl.gz](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/pic_lms/wenetspeech_supervisions_S.png)
 
 由上面两幅图可知，`recordings` 用于描述音频文件信息，包含了音频样本的 id、具体路径、通道、采样率、子样本数和时长等。`supervisions` 用于记录监督信息，包含了音频样本对应的 id、起始时间、时长、通道、文本和语言类型等。
 
 接下来，我们将对音频数据提取特征。
 
-> - 计算、提取和贮存音频特征
+##### 计算、提取和贮存音频特征
 
-首先，对数据进行预处理，包括对文本进行标准化和对音频进行时域上的增广，可参考文件 [preprocess_wenetspeech.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/preprocess_wenetspeech.py, "preprocess_wenetspeech.py")。
+首先，对数据进行预处理，包括对文本进行标准化和对音频进行时域上的增广，可参考文件 [preprocess_wenetspeech.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/preprocess_wenetspeech.py "preprocess_wenetspeech.py")。
 
 ```bash
 python3 ./local/preprocess_wenetspeech.py
 ```
 
-其次，将数据集切片并对每个切片数据集进行特征提取，可参考文件  [compute_fbank_wenetspeech_splits.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/compute_fbank_wenetspeech_splits.py, "compute_fbank_wenetspeech_splits.py")。
+其次，将数据集切片并对每个切片数据集进行特征提取。可参考文件  [compute_fbank_wenetspeech_splits.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/compute_fbank_wenetspeech_splits.py "compute_fbank_wenetspeech_splits.py")。
 
-（注：这里的切片是为了可以开启多个进程同时对大规模数据集进行特征提取，提高效率，如果数据集比较小，对数据进行切片处理不是必须的。）
+（注：这里的切片是为了可以开启多个进程同时对大规模数据集进行特征提取，提高效率。如果数据集比较小，对数据进行切片处理不是必须的。）
 
 ```bash
-## 这里的 L 也可修改为 M 或 S, 表示训练数据子集
+# 这里的 L 也可修改为 M 或 S, 表示训练数据子集
 
 lhotse split 1000 ./data/fbank/cuts_L_raw.jsonl.gz data/fbank/L_split_1000
 
@@ -155,7 +156,7 @@ python3 ./local/compute_fbank_wenetspeech_splits.py \
 最后，待提取完每个切片数据集的特征，将所有切片数据集的特征数据合并成一个总的特征数据集：
 
 ```bash
-## 这里的 L 也可修改为 M 或 S, 表示训练数据子集
+# 这里的 L 也可修改为 M 或 S, 表示训练数据子集
 
 pieces=$(find data/fbank/L_split_1000 -name "cuts_L.*.jsonl.gz")
 lhotse combine $pieces data/fbank/cuts_L.jsonl.gz
@@ -164,11 +165,11 @@ lhotse combine $pieces data/fbank/cuts_L.jsonl.gz
 至此，我们基本完成了音频文件的准备和特征提取。接下来，我们将构建语言建模文件。
 
 #### 构建语言建模文件
-在 `RNN-T` 的模型框架中，我们实际需要的用于训练和测试的建模文件有 `tokens.txt`、`words.txt` 和 `Linv.pt` 。 我们按照如下步骤构建语言建模文件：
+在 `RNN-T` 模型框架中，我们实际需要的用于训练和测试的建模文件有 `tokens.txt`、`words.txt` 和 `Linv.pt` 。 我们按照如下步骤构建语言建模文件：
 
-> - 规范化文本并生成 text
+##### 规范化文本并生成 text
 
-在这一步骤中，规范文本的函数文件可参考 [text2token.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/text2token.py, "text2token.py")。
+在这一步骤中，规范文本的函数文件可参考 [text2token.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/text2token.py "text2token.py")。
 
 ```bash
 # Note: in Linux, you can install jq with the following command:
@@ -195,9 +196,9 @@ gunzip -c data/manifests/wenetspeech_supervisions_L.jsonl.gz \
  ............
 ```
 
-> - 分词并生成 words.txt
+##### 分词并生成 words.txt
 
-这里我们用 `jieba` 对中文句子进行分词，可参考文件 [text2segments.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/text2segments.py, "text2segments.py") 。
+这里我们用 `jieba` 对中文句子进行分词，可参考文件 [text2segments.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/text2segments.py "text2segments.py") 。
 
 ```bash
 python3 ./local/text2segments.py \
@@ -251,9 +252,9 @@ python3 ./local/prepare_words.py \
 阿安 233
 ............
 ```
-> - 生成 tokens.txt 和词典文件 Linv.pt
+##### 生成 tokens.txt 和词典文件 Linv.pt
 
-这里生成 `tokens.txt` 和生成 `Linv.pt` 的函数文件可参考 [prepare_char.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/prepare_char.py, "prepare_char.py") 。
+这里生成 `tokens.txt` 和生成 `Linv.pt` 的函数文件可参考 [prepare_char.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/prepare_char.py "prepare_char.py") 。
 
 ```bash
 python3 ./local/prepare_char.py \
@@ -296,12 +297,12 @@ ZSU Z S U
 
 至此，第一步全部完成。对于不同数据集来说，其基本思路也是类似的，在数据准备和处理阶段，我们主要做两件事情：`准备音频文件并进行特征提取`、`构建语言建模文件`。
 
-这里我们使用的范例是中文汉语，建模单元是字，在英文数据中，我们一般用 BPE 作为建模单元，具体的可参考 [egs/librispeech/ASR/prepare.sh](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR, "egs/librispeech/ASR/prepare.sh") 。
+这里我们使用的范例是中文汉语，建模单元是字，在英文数据中，我们一般用 BPE 作为建模单元，具体的可参考 [egs/librispeech/ASR/prepare.sh](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR "egs/librispeech/ASR/prepare.sh") 。
 
 ### 第二步：模型训练和测试
 在完成第一步的基础上，我们可以进入到第二步，即模型的训练和测试了。这里，我们根据操作流程和功能，将第二步划分为更加具体的几步：文件准备、数据加载、模型训练、解码测试。
 
-> - 文件准备
+#### 文件准备
 
 首先，创建 pruned_transducer_stateless2 的文件夹。
 
@@ -310,7 +311,7 @@ mkdir pruned_transducer_stateless2
 cd pruned_transducer_stateless2
 ```
 
-其次，我们需要准备数据读取、模型、训练、测试、模型导出等脚本文件。在这里，我们在 [egs/librispeech/ASR/pruned_transducer_stateless2](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless2, "egs/librispeech/ASR/pruned_transducer_stateless2") 的基础上创建我们需要的文件。
+其次，我们需要准备数据读取、模型、训练、测试、模型导出等脚本文件。在这里，我们在 [egs/librispeech/ASR/pruned_transducer_stateless2](https://github.com/k2-fsa/icefall/tree/master/egs/librispeech/ASR/pruned_transducer_stateless2 "egs/librispeech/ASR/pruned_transducer_stateless2") 的基础上创建我们需要的文件。
 
 对于公共的脚本文件（即不需要修改的文件），我们可以用软链接直接复制过来，如：
 
@@ -361,16 +362,16 @@ vocab_size 的获取:
     params.vocab_size = max(lexicon.tokens) + 1
     ............
 ```
-更加详细的修改后的 train.py 可参考 [egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py, "egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py") 。
+更加详细的修改后的 train.py 可参考 [egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py "egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py") 。
 其他 decode.py、pretrained.py、export.py 等需要修改的文件也可以参照上述进行类似的修改和调整。
 
 （注：在准备文件时，应该遵循`相同的文件不重复造轮子、不同的文件尽量小改、缺少的文件自己造`的原则。icefall 中大多数函数和功能文件在很多数据集上都进行了测试和验证，都是可以直接迁移使用的。）
 
-> - 数据加载
+#### 数据加载
 
-实际上，对于数据加载这一步，也可以视为文件准备的一部分，即修改文件 [asr_datamodule.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/asr_datamodule.py, "asr_datamodule.py")，但是考虑到不同数据集的 asr_datamodule.py 都不一样，所以这里单独拿出来讲述。
+实际上，对于数据加载这一步，也可以视为文件准备的一部分，即修改文件 [asr_datamodule.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/asr_datamodule.py "asr_datamodule.py")，但是考虑到不同数据集的 asr_datamodule.py 都不一样，所以这里单独拿出来讲述。
 
-首先，这里以 [egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py](https://github.com/k2-fsa/icefall/blob/master/egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py, "egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py") 为基础，在这个上面进行修改：
+首先，这里以 [egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py](https://github.com/k2-fsa/icefall/blob/master/egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py "egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py") 为基础，在这个上面进行修改：
 
 ```bash
 cp -r ../../../librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py .
@@ -459,13 +460,13 @@ max     33.3
     ............
 ```
 
-> - 模型训练
+#### 模型训练
 
 在完成相关必要文件准备和数据加载成功的基础上，我们可以开始进行模型的训练了。
 
 在训练之前，我们需要根据训练数据的规模和我们的算力条件（比如 GPU 显卡的型号、GPU 显卡的数量、每个卡的显存大小等）去调整相关的参数。
 
-这里，我们将主要介绍几个比较关键的参数，其中，`world-size` 表示并行计算的 GPU 数量，`max-duration` 表示每个 batch 中所有音频样本的最大时长之和，`num-epochs` 表示训练的 epochs 数，`valid-interval` 表示在验证集上计算 loss 的 iterations 间隔，`model-warm-step` 表示模型热启动的 iterations 数，`use-fp16` 表示是否用16位的浮点数进行训练等，其他参数可以参考 [train.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py, "train.py") 具体的参数解释和说明。
+这里，我们将主要介绍几个比较关键的参数，其中，`world-size` 表示并行计算的 GPU 数量，`max-duration` 表示每个 batch 中所有音频样本的最大时长之和，`num-epochs` 表示训练的 epochs 数，`valid-interval` 表示在验证集上计算 loss 的 iterations 间隔，`model-warm-step` 表示模型热启动的 iterations 数，`use-fp16` 表示是否用16位的浮点数进行训练等，其他参数可以参考 [train.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py "train.py") 具体的参数解释和说明。
 
 在这个示例中，我们用 WenetSpeech 中 `L subset` 训练集来进行训练，并综合考虑该数据集的规模和我们的算力条件，训练参数设置和运行指令如下（没出现的参数表示使用默认的参数值）：
 ```bash
@@ -533,15 +534,15 @@ Uploading 4542 scalars...
 ```
 
 将上述显示的 `tensorboard` 记录查看网址复制到本地浏览器的网址栏中即可查看。如在本示例中，我们将 https://tensorboard.dev/experiment/wM4ZUNtASRavJx79EOYYcg/ 复制到本地浏览器的网址栏中，损失函数的 tensorboard 记录如下：
- - ![wenetspeech_L_tensorboard.png](pic/pic_lms/wenetspeech_L_tensorboard.png)
+ - ![wenetspeech_L_tensorboard.png](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/pic_lms/wenetspeech_L_tensorboard.png)
 
 （PS: 读者可从上图发现，笔者在训练 WenetSpeech L subset 时，也因为某些原因中断了训练，但是，icefall 中人性化的接续训练操作让笔者避免了从零开始训练，并且前后两个训练阶段的 `loss` 和 `learning rate` 曲线还连接地如此完美。）
 
-> - 解码测试
+#### 解码测试
 
 当模型训练完毕，我们就可以进行解码测试了。
 
-在运行解码测试的指令之前，我们依然需要对 `decode.py` 进行如文件准备过程中对 `train.py` 相似位置的修改和调整，这里将不具体讲述，修改后的文件可参考 [decode.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/decode.py, "decode.py")。
+在运行解码测试的指令之前，我们依然需要对 `decode.py` 进行如文件准备过程中对 `train.py` 相似位置的修改和调整，这里将不具体讲述，修改后的文件可参考 [decode.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/decode.py "decode.py")。
 
 这里为了在测试过程中更快速地加载数据，我们将测试数据导出为 `webdataset` 要求的形式（注：这一步不是必须的，如果测试过程中速度比较快，这一步可以省略），操作如下：
 
@@ -604,7 +605,7 @@ Uploading 4542 scalars...
 
 待修改完毕，联合调试 decode.py 和 asr_datamodule.py, 解码过程能正常加载数据即可。
 
-在进行解码测试时，icefall 为我们提供了四种解码方式：`greedy_search`、`beam_search`、`modified_beam_search` 和 `fast_beam_search`，更为具体实现方式，可参考文件 [beam_search.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py, "beam_search.py")。
+在进行解码测试时，icefall 为我们提供了四种解码方式：`greedy_search`、`beam_search`、`modified_beam_search` 和 `fast_beam_search`，更为具体实现方式，可参考文件 [beam_search.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py "beam_search.py")。
 
 这里，因为建模单元的数量非常多（5500+），导致解码速度非常慢，所以，笔者不建议使用 beam_search 的解码方式。
 
@@ -661,25 +662,25 @@ do
 done
 ```
 
-以上方法仅供读者参考，读者可根据自己的实际情况进行修改和调整。目前，icefall 也提供了一种新的平均模型参数的方法，性能更好，这里将不作细述，有兴趣可以参考文件 [decode.py](https://github.com/k2-fsa/icefall/blob/master/egs/librispeech/ASR/pruned_transducer_stateless5/train.py, "decode.py") 中的参数 `--use-averaged-model`。
+以上方法仅供读者参考，读者可根据自己的实际情况进行修改和调整。目前，icefall 也提供了一种新的平均模型参数的方法，性能更好，这里将不作细述，有兴趣可以参考文件 [decode.py](https://github.com/k2-fsa/icefall/blob/master/egs/librispeech/ASR/pruned_transducer_stateless5/train.py "decode.py") 中的参数 `--use-averaged-model`。
 
 至此，解码测试就完成了。使用者也可以通过查看 `egs/pruned_transducer_stateless2/exp/greedy_search` 中 `recogs-*.txt`、`errs-*.txt` 和 `wer-*.txt` 等文件，看看每个样本的具体解码结果和最终解码性能。
 
-本示例中，笔者的训练模型和测试结果可以参考 [icefall_asr_wenetspeech_pruned_transducer_stateless2](https://huggingface.co/luomingshuang/icefall_asr_wenetspeech_pruned_transducer_stateless2, "icefall_asr_wenetspeech_pruned_transducer_stateless2")，读者可以在 [icefall_asr_wenetspeech_pruned_transducer_stateless2_colab_demo](https://colab.research.google.com/drive/1EV4e1CHa1GZgEF-bZgizqI9RyFFehIiN?usp=sharing, "icefall_asr_wenetspeech_pruned_transducer_stateless2_colab_demo") 上直接运行和测试提供的模型，这些仅供读者参考。
+本示例中，笔者的训练模型和测试结果可以参考 [icefall_asr_wenetspeech_pruned_transducer_stateless2](https://huggingface.co/luomingshuang/icefall_asr_wenetspeech_pruned_transducer_stateless2 "icefall_asr_wenetspeech_pruned_transducer_stateless2")，读者可以在 [icefall_asr_wenetspeech_pruned_transducer_stateless2_colab_demo](https://colab.research.google.com/drive/1EV4e1CHa1GZgEF-bZgizqI9RyFFehIiN?usp=sharing "icefall_asr_wenetspeech_pruned_transducer_stateless2_colab_demo") 上直接运行和测试提供的模型，这些仅供读者参考。
 
 ### 第三步：服务端部署演示
 
 在顺利完成第一步和第二步之后，我们就可以得到训练模型和测试结果了。
 
-接下来，笔者将讲述如何利用 sherpa 框架把训练得到的模型部署到服务端，笔者强烈建议读者参考和阅读 [sherpa使用文档](https://k2-fsa.github.io/sherpa/, "sherpa使用文档")，该框架还在不断地更新和优化中，感兴趣的读者可以保持关注并参与到开发中来。
+接下来，笔者将讲述如何利用 sherpa 框架把训练得到的模型部署到服务端，笔者强烈建议读者参考和阅读 [sherpa使用文档](https://k2-fsa.github.io/sherpa/ "sherpa使用文档")，该框架还在不断地更新和优化中，感兴趣的读者可以保持关注并参与到开发中来。
 
-本示例中，我们用的 sherpa 版本为 [sherpa-for-wenetspeech-pruned-rnnt2](https://github.com/k2-fsa/sherpa/tree/9da5b0779ad6758bf3150e1267399fafcdef4c67, "sherpa-for-wenetspeech-pruned-rnnt2")。
+本示例中，我们用的 sherpa 版本为 [sherpa-for-wenetspeech-pruned-rnnt2](https://github.com/k2-fsa/sherpa/tree/9da5b0779ad6758bf3150e1267399fafcdef4c67 "sherpa-for-wenetspeech-pruned-rnnt2")。
 
 为了将整个过程描述地更加清晰，笔者同样将第三步细分为以下几步：`将训练好的模型编译为 TorchScript 代码`、`服务器终端运行`、`本地 web 端测试使用`。
 
-> - 将训练好的模型编译为 TorchScript 代码
+#### 将训练好的模型编译为 TorchScript 代码
 
-这里，我们使用 `torch.jit.script` 对模型进行编译，使得 `nn.Module` 形式的模型在生产环境下变得可用，具体的代码实现可参考文件 [export.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/export.py, "export.py")，操作指令如下：
+这里，我们使用 `torch.jit.script` 对模型进行编译，使得 `nn.Module` 形式的模型在生产环境下变得可用，具体的代码实现可参考文件 [export.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/export.py "export.py")，操作指令如下：
 
 ```bash
 python3 pruned_transducer_stateless2/export.py \
@@ -691,7 +692,7 @@ python3 pruned_transducer_stateless2/export.py \
 ```
 运行上述指令，我们可以在 `egs/wenetspeech/ASR/pruned_transducer_stateless2/exp` 中得到一个 `cpu_jit.pt` 的文件，这是我们在 sherpa 框架里将要使用的模型文件。
 
-> - 服务器终端运行
+#### 服务器终端运行
 
 本示例中，我们的模型是中文非流式的，所以我们选择非流式模式来运行指令，同时，我们需要选择在上述步骤中生成的 `cpu_jit.pt` 和 `tokens.txt` ：
 ```bash
@@ -715,7 +716,7 @@ cd sherpa/bin/web
 python3 -m http.server 6008
 ```
 
-> - 本地 web 端测试使用
+#### 本地 web 端测试使用
 
 在服务器端运行相关功能的调用指令后，为了有更好的 ASR 交互体验，我们还需要将服务器端的 web 网页端服务进行本地化，所以使用 ssh 来连接本地端口和服务器上的端口：
 ```bash
@@ -723,10 +724,10 @@ ssh -R 6006:localhost:6006 -R 6008:localhost:6008 local_username@local_ip
 ```
 
 接下来，我们可以在本地浏览器的网址栏输入：`localhost:6008`，我们将可以看到如下页面：
- - ![next-gen Kaldi web demo](pic/pic_lms/next-gen-Kaldi-web-demo.png)
+ - ![next-gen Kaldi web demo](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/pic_lms/next-gen-Kaldi-web-demo.png)
 
 我们选择 `Offline-Record`，并打开麦克风，即可录音识别了。笔者的一个识别结果如下图所示：
- - ![a-picture-for-offline-asr](pic/pic_lms/offline-asr.png)
+ - ![a-picture-for-offline-asr](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/pic_lms/offline-asr.png)
 
 到这里，从数据准备和处理、模型训练和测试、服务端部署演示等三步就基本完成了。
 
