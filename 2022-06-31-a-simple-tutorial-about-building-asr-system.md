@@ -724,7 +724,7 @@ ssh -R 6006:localhost:6006 -R 6008:localhost:6008 local_username@local_ip
 ```
 
 接下来，我们可以在本地浏览器的网址栏输入：`localhost:6008`，我们将可以看到如下页面：
- - ![next-gen Kaldi web demo](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/pic_lms/next-gen-Kaldi-web-demo.png)
+ - ![next-gen Kaldi web demo](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/pic_lms/next-gen-kaldi-web-demo.png)
 
 我们选择 `Offline-Record`，并打开麦克风，即可录音识别了。笔者的一个识别结果如下图所示：
  - ![a-picture-for-offline-asr](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/pic_lms/offline-asr.png)
