@@ -14,7 +14,7 @@
 
 阅读过前面几期公众文的读者可能都知道新一代 Kaldi 框架主要包含了四个不同的子项目：`k2`、`icefall`、`lhotse`、`sherpa`。其中，`k2` 是核心算法库；`icefall` 是数据集训练测试示例脚本；`lhotse` 是语音数据处理工具集；`sherpa` 是服务端框架，四个子项目共同构成了新一代 Kaldi 框架。
 
-另一方面，截止目前，新一代 kaldi 框架在很多公开数据集上都获得了很有竞争力的识别结果，在 WenetSpeech 和 GigaSpeech 上甚至都获得了SOTA的性能。
+另一方面，截止目前，新一代 Kaldi 框架在很多公开数据集上都获得了很有竞争力的识别结果，在 WenetSpeech 和 GigaSpeech 上甚至都获得了SOTA的性能。
 
 看到这，相信很多小伙伴都已经摩拳擦掌、跃跃欲试了，那么本文的目标就是试图贯通新一代 Kaldi 的四个子项目，为快速搭建一个服务端的 ASR 系统提供一个简易的教程。希望看完本文的小伙伴都能顺利搭建出自己的 ASR 系统。
 
@@ -92,7 +92,7 @@ download/WenetSpeech/audio
                     "text": "挺好的"
 ```
 
-(注：WenetSpeech 中文数据集中包含了 S，M，L 三个不同规模的训练数据集)
+（注：WenetSpeech 中文数据集中包含了 S，M，L 三个不同规模的训练数据集）
 
 > - 利用 lhotse 生成 manifests
 
@@ -130,13 +130,14 @@ wenetspeech_supervisions_S.jsonl.gz:
 > - 计算、提取和贮存音频特征
 
 首先，对数据进行预处理，包括对文件进行标准化和对音频进行时域上的增广，可参考文件 [preprocess_wenetspeech.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/preprocess_wenetspeech.py, "preprocess_wenetspeech.py")。
-```
+
+```bash
 python3 ./local/preprocess_wenetspeech.py
 ```
 
 其次，切片并对每个切片数据进行特征提取，可参考文件  [compute_fbank_wenetspeech_splits.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/compute_fbank_wenetspeech_splits.py, "compute_fbank_wenetspeech_splits.py")。
 
-(注：这里的切片是为了可以开启多个进程同时对大规模数据集进行特征提取，提高效率，如果数据集比较小，对数据进行切片处理不是必须的。)
+（注：这里的切片是为了可以开启多个进程同时对大规模数据集进行特征提取，提高效率，如果数据集比较小，对数据进行切片处理不是必须的。）
 
 ```bash
 ## 这里的 L 也可修改为 M 或 S, 表示训练数据子集
@@ -152,6 +153,7 @@ python3 ./local/compute_fbank_wenetspeech_splits.py \
 ```
 
 最后，待提取完每个切片数据的特征，将每个子集的所有切片特征数据合并成一个总的特征数据集：
+
 ```bash
 ## 这里的 L 也可修改为 M 或 S, 表示训练数据子集
 
@@ -166,7 +168,8 @@ lhotse combine $pieces data/fbank/cuts_L.jsonl.gz
 
 > - 规范化文本并生成 text
 
-在这一步骤中，规范文本的函数文件可参考 [text2token.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/text2token.py, "text2token.py").
+在这一步骤中，规范文本的函数文件可参考 [text2token.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/text2token.py, "text2token.py")。
+
 ```bash
 # Note: in Linux, you can install jq with the following command:
 # 1. wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
@@ -177,7 +180,9 @@ gunzip -c data/manifests/wenetspeech_supervisions_L.jsonl.gz \
       | jq 'text' | sed 's/"//g' \
       | ./local/text2token.py -t "char" > data/lang_char/text
 ```
+
 `text` 的形式如下：
+
 ```
  怎么样这些日子住得还习惯吧
  挺好的
@@ -189,6 +194,7 @@ gunzip -c data/manifests/wenetspeech_supervisions_L.jsonl.gz \
  我就搬出去住
  ............
 ```
+
 > - 分词并生成 words.txt
 
 这里我们用 `jieba` 对中文句子进行分词，可参考文件 [text2segments.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/text2segments.py, "text2segments.py") 。
@@ -358,13 +364,14 @@ vocab_size 的获取:
 更加详细的修改后的 train.py 可参考 [egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py, "egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py") 。
 其他 decode.py、pretrained.py、export.py 等需要修改的文件也可以参照上述进行类似的修改和调整。
 
-(注：在准备文件时，应该遵循`相同的文件不重复造轮子、不同的文件尽量小改、缺少的文件自己造`的原则。icefall 中大多数函数和功能文件在很多数据集上都进行了测试和验证，都是可以直接迁移使用的。)
+（注：在准备文件时，应该遵循`相同的文件不重复造轮子、不同的文件尽量小改、缺少的文件自己造`的原则。icefall 中大多数函数和功能文件在很多数据集上都进行了测试和验证，都是可以直接迁移使用的。）
 
 > - 数据加载
 
 实际上，对于数据加载这一步，也可以视为文件准备的一部分，即修改文件 [asr_datamodule.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/asr_datamodule.py, "asr_datamodule.py")，但是考虑到不同数据集的 asr_datamodule.py 都不一样，所以这里单独拿出来讲述。
 
 首先，这里以 [egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py](https://github.com/k2-fsa/icefall/blob/master/egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py, "egs/librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py") 为基础，在这个上面进行修改：
+
 ```bash
 cp -r ../../../librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py .
 ```
@@ -397,7 +404,7 @@ cp -r ../../../librispeech/ASR/pruned_transducer_stateless2/asr_datamodule.py .
 
 另外，在数据加载的过程中，我们也有必要对数据样本的时长进行统计，并过滤一些过短、过长且占比极小的样本，这样可以使我们的训练过程更加稳定。
 
-如在本示例中，我们对 WenetSpeech 的样本进行了时长统计( L 数据集太大，这里没有对它进行统计)，具体的可参考 [display_manifest_statistics.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/display_manifest_statistics.py, "display_manifest_statistics.py")，统计的部分结果如下：
+在本示例中，我们对 WenetSpeech 的样本进行了时长统计( L 数据集太大，这里没有对它进行统计)，具体的可参考 [display_manifest_statistics.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/local/display_manifest_statistics.py, "display_manifest_statistics.py")，统计的部分结果如下：
 ```
 ............
 Starting display the statistics for ./data/fbank/cuts_M.jsonl.gz
@@ -525,7 +532,7 @@ Uploading 4542 scalars...
 ............
 ```
 
-将上述显示的 `tensorboard` 记录查看网址复制到本地浏览器的网址栏中即可查看。如在本示例中，我们将 https://tensorboard.dev/experiment/QfaF3e53R1GWbPU4peQy8w/ 复制到本地浏览器的网址栏中，损失函数的 tensorboard 记录如下：
+将上述显示的 `tensorboard` 记录查看网址复制到本地浏览器的网址栏中即可查看。如在本示例中，我们将 https://tensorboard.dev/experiment/wM4ZUNtASRavJx79EOYYcg/ 复制到本地浏览器的网址栏中，损失函数的 tensorboard 记录如下：
  - ![wenetspeech_L_tensorboard.png](pic/pic_lms/wenetspeech_L_tensorboard.png)
 
  (PS: 读者可从上图发现，笔者在训练 WenetSpeech L subset 时，也因为某些原因中断了训练，但是，icefall 中人性化的接续训练操作让笔者避免了从零开始训练，并且前后两个训练阶段的 `loss` 和 `learning rate` 曲线还连接地如此完美。)
@@ -716,7 +723,7 @@ ssh -R 6006:localhost:6006 -R 6008:localhost:6008 local_username@local_ip
 ```
 
 接下来，我们可以在本地浏览器的网址栏输入：`localhost:6008`，我们将可以看到如下页面：
- - ![next-gen kaldi web demo](pic/pic_lms/next-gen-kaldi-web-demo.png)
+ - ![next-gen Kaldi web demo](pic/pic_lms/next-gen-Kaldi-web-demo.png)
 
 我们选择 `Offline-Record`，并打开麦克风，即可录音识别了。笔者的一个识别结果如下图所示：
  - ![a-picture-for-offline-asr](pic/pic_lms/offline-asr.png)
