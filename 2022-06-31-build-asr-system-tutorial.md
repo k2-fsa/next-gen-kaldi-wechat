@@ -97,7 +97,9 @@ download/WenetSpeech/audio
 
     ............
 ```
+
 (注：WenetSpeech 中文数据集中包含了 S，M，L 三个不同规模的训练数据集)
+
 > - 利用 lhotse 生成 manifests
 
 关于 lhotse 是如何将原始数据处理成 `jsonl.gz` 格式文件的，这里可以参考文件[wenet_speech.py](https://github.com/lhotse-speech/lhotse/blob/master/lhotse/recipes/wenet_speech.py, "wenet_speech.py")， 其主要功能是生成 `recordings` 和 `supervisions` 的 `jsonl.gz` 格式文件
@@ -523,6 +525,7 @@ Uploading 4542 scalars...
 在运行解码测试的指令之前，我们依然需要对 `decode.py` 进行如文件准备过程中对 `train.py` 相似位置的修改和调整，这里将不具体讲述，修改后的文件可参考 [decode.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/decode.py, "decode.py")。
 
 这里为了在测试过程中更快速地加载数据，我们对测试数据导出为 `webdataset` 要求的形式（注：这一步不是必须的，如果测试过程中速度比较快，这一步可以省略），操作如下：
+
 ```python
     ............
     wenetspeech = WenetSpeechAsrDataModule(args)
@@ -553,6 +556,7 @@ Uploading 4542 scalars...
     dev_dl = wenetspeech.valid_dataloaders(cuts_dev_webdataset)
     ............
 ```
+
 同时，在 `asr_datamodule.py` 中修改 `test_dataloader` 函数，修改如下（注：这一步不是必须的，如果测试过程中速度比较快，这一步可以省略）：
 ```python
         ............
