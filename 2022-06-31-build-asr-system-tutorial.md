@@ -21,7 +21,9 @@
 
 为了更加形象、具体地描述这个过程，本文以构建一个基于WenetSpeech数据集的[pruned transducer stateless2 recipe](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR, "pruned transducer stateless2 recipe")为例，希望尽可能为读者详细地描述这一过程，也希望读者能够在本文的基础上能够无障碍地迁移到其他数据集的处理、训练和部署使用上去。
 
-(注：本文描述的过程和展示的代码更多的是为了描述功能，而非详细的实现过程，详细的实现代码请读者自行参考[egs/wenetspeech/ASR](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR, "pruned transducer stateless2 recipe"), 另外，使用者应该事先安装好k2、icefall、lhotse、sherpa)
+(注：本文描述的过程和展示的代码更多的是为了描述功能，而非详细的实现过程，详细的实现代码请读者自行参考[egs/wenetspeech/ASR](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR, "pruned transducer stateless2 recipe"))
+
+**Note**: 使用者应该事先安装好最新版的k2、icefall、lhotse、sherpa，这里我们建议读者使用`python3 setup.py install`来安装k2。
 
 ### 第一步：数据准备和处理
 对于数据准备和处理部分，所有的运行指令都集成在文件[prepare.sh](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/prepare.sh "prepare.sh")中，主要的作用可以总结为两个：`准备音频文件并进行特征提取`、`构建语言建模文件`。
@@ -622,7 +624,11 @@ done
 
 ### 第三步：服务端部署演示
 
-在顺利完成第一步和第二步之后，我们就可以得到训练模型和测试结果了。接下来，笔者将讲述如何利用sherpa框架把sher训练得到的模型部署到服务端。
+在顺利完成第一步和第二步之后，我们就可以得到训练模型和测试结果了。
+
+接下来，笔者将讲述如何利用sherpa框架把sher训练得到的模型部署到服务端，笔者强烈建议读者参考和阅读[sherpa使用文档](https://k2-fsa.github.io/sherpa/, "sherpa使用文档")，该框架还在不断地更新和优化中，感兴趣的读者可以保持关注并参与开发中来。
+
+本示例中我们用的sherpa版本为[sherpa-for-wenetspeech-pruned-rnnt2](https://github.com/k2-fsa/sherpa/tree/9da5b0779ad6758bf3150e1267399fafcdef4c67, "sherpa-for-wenetspeech-pruned-rnnt2")。
 
 为了将整个过程描述地更加清晰，笔者同样将第三步分为以下几步：`将训练好的模型编译为TorchScript代码`、`服务器终端运行`、`本地web端测试使用`。
 
@@ -638,9 +644,46 @@ python3 pruned_transducer_stateless2/export.py \
     --avg 2 \
     --jit True
 ```
-运行上述指令，我们可以在 `egs/wenetspeech/ASR/pruned_transducer_stateless2/exp` 中得到一个
+运行上述指令，我们可以在 `egs/wenetspeech/ASR/pruned_transducer_stateless2/exp` 中得到一个 `cpu_jit.pt` 的文件，这是我们在 sherpa 框架里将要使用的模型文件。
 
+> - 服务器终端运行
 
+如本示例中，我们的模型是中文非流式的，所以我们选择非流式模式来运行指令，同时，我们需要选择在上述步骤中生成的`cpu_jit.pt`和`tokens.txt`文件：
+```bash
+python3 sherpa/bin/conformer_rnnt/offline_server.py \
+    --port 6006 \
+    --num-device 1 \
+    --max-batch-size 10 \
+    --max-wait-ms 5 \
+    --max-active-connections 500 \
+    --feature-extractor-pool-size 5 \
+    --nn-pool-size 1 \
+    --nn-model-filename ~/icefall/egs/wenetspeech/ASR/pruned_transducer_stateless2/exp/cpu_jit.pt \
+    --token-filename ~/icefall/egs/wenetspeech/ASR/data/lang_char/tokens.txt
+
+```
+注：在上述指令的参数中，port为6006，这里的端口也不是固定的，读者可以根据自己的实际情况进行修改，如6007等。但是，修改本端口的同时，必须要在`sherpa/bin/web/js`中对 `offline_record.js` 和 `streaming_record.js`中的端口进行同步修改，以保证web的数据和server的数据可以互通。
+
+与此同时，我们还需要在服务器终端另开一个窗口运行web网页端服务，指令如下：
+```bash
+cd sherpa/bin/web
+python3 -m http.server 6008
+```
+
+> - 本地web端测试使用
+
+在服务器端运行相关的功能调用指令后，为了使得有更好地ASR交互体验，我们还需要将服务器端的web网页端服务进行本地化，所以使用ssh来连接本地端口和服务器上的端口：
+```bash
+ssh -R 6006:localhost:6006 -R 6008:localhost:6008 local_username@local_ip
+```
+
+接下来，我们可以在本地浏览器的网址栏输入：`localhost:6008`，我们将可以看到如下页面：
+ - ![next-gen kaldi web demo](pic/pic_lms/next-gen-kaldi-web-demo.png)
+
+我们选择`Offline-Record`，并打开麦克风，即可录音识别了。笔者的一个识别结果如下图所示：
+ - ![a-picture-for-offline-asr](pic/pic_lms/offline-asr.png)
+
+到这里，从数据准备和处理、模型训练和测试、服务端部署演示等三步就基本完成了。笔者在本文中只是从粗浅地层面概述了整个流程，更多详细具体的细节，希望读者能够自己去探索。
 
 ## 总结
 在本文中，笔者试图以 WenetSpeech 的 pruned transducer stateless2 recipe 构建、训练、部署的全流程为线索，贯通k2、icefall、lhotse、sherpa四个独立子项目, 将新一代Kaldi框架的数据准备和处理、模型训练和测试、服务端部署演示等流程一体化地全景展示出来，形成一个简易的教程，希望能够更好地帮助读者使用新一代Kaldi语音识别开源框架，真正做到上手即用。
