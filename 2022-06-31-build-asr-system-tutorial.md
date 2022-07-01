@@ -25,7 +25,7 @@
  - 模型训练和测试
  - 服务端部署演示
 
-本文介绍的 ASR 系统是基于 RNN-T 的框架且不涉及外加的语言模型，所以，本文将不涉及 WFST 等语言模型的内容，如后期有需要，会在后面的文章中另行讲述。
+本文介绍的 ASR 系统是基于 RNN-T 框架且不涉及外加的语言模型，所以，本文将不涉及 WFST 等语言模型的内容，如后期有需要，会在后面的文章中另行讲述。
 
 为了更加形象、具体地描述这个过程，本文以构建一个基于 WenetSpeech 数据集的 [pruned transducer stateless2 recipe](https://github.com/k2-fsa/icefall/tree/master/egs/wenetspeech/ASR, "pruned transducer stateless2 recipe") 为例，希望尽可能为读者详细地描述这一过程，也希望读者能够在本文的基础上能够无障碍地迁移到其他数据集的处理、训练和部署使用上去。
 
