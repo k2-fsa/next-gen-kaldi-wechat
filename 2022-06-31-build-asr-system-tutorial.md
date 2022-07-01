@@ -446,7 +446,7 @@ max     33.3
 
 > - 模型训练
 
-在完成相关必要文件准备和数据加载成功的基础上，我们可以开始进行模型的训练了。在训练之前，我们需要根据我们的训练数据的规模和 算力条件(比如 GPU 显卡的型号、GPU 显卡的数量、每个卡的显存大小等)去调整相关的参数。
+在完成相关必要文件准备和数据加载成功的基础上，我们可以开始进行模型的训练了。在训练之前，我们需要根据我们的训练数据的规模和算力条件(比如 GPU 显卡的型号、GPU 显卡的数量、每个卡的显存大小等)去调整相关的参数。
 
 这里，们将主要介绍几个比较关键的参数，其中，`world-size` 表示并行计算的 GPU 数量，`max-duration` 表示每个 batch 中所有音频样本的最大时长之和，`num-epochs` 表示训练的 epochs 数，`valid-interval` 表示在验证集上计算 loss 的 iterations 间隔，`model-warm-step` 表示模型热启动的 iterations 数，`use-fp16` 表示是否用16位的浮点数进行训练等，其他参数可以参考 [train.py](https://github.com/k2-fsa/icefall/blob/master/egs/wenetspeech/ASR/pruned_transducer_stateless2/train.py, "train.py") 具体的参数解释和说明。
 
