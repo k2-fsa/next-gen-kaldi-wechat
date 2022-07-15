@@ -115,7 +115,7 @@ https://huggingface.co/spaces/k2-fsa/icefall-asr-wenetspeech-pruned-transducer-s
 
 ![](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/2022-07-15-wenetspeech-4.png)
 
-类似的，读者可以在 https://hf.co/k2-fsa 网页找到其他数据集的预训练模型进行体验。此处
+类似的，读者可以在 https://hf.co/k2-fsa 网页找到其他数据集的预训练模型进行体验。此处不再赘述。
 
 > 读者可以从手机端打开上述链接进行测试。
 
