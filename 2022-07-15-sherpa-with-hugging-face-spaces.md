@@ -45,7 +45,7 @@ https://hf.co/k2-fsa
 https://huggingface.co/k2-fsa
 
 
-目前，我们支持 [icefall](https://github.com/k2-fsa/icefall) 中，使用如下数据集训练出来的模型:
+目前，我们支持 [icefall](https://github.com/k2-fsa/icefall) 中使用如下数据集训练出来的模型:
 
 - [WenetSpeech](https://github.com/wenet-e2e/WenetSpeech)， 中文
 - [GigaSpeech](https://github.com/SpeechColab/GigaSpeech)， 英文
@@ -76,6 +76,8 @@ https://huggingface.co/spaces/k2-fsa/icefall-asr-wenetspeech-pruned-transducer-s
 
 > 支持常见的音频格式，如 .wav, .mp3, .opus, .aac 等。如果所给音频的采样率不是 16k，我们会自动
 > 对采样率进行转换。
+
+> 上传的文件，请不要在文件名中使用特殊字符，如空格或者小括号 `()`等。
 
 读者可以用上面类似的方法，对其他数据集预训练模型进行测试。例如：
 
