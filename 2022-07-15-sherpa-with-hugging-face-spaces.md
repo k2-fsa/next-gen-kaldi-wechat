@@ -62,11 +62,11 @@ https://huggingface.co/k2-fsa
 
 - 使用 WenetSpeech 数据集的预训练模型
 
-点击如下链接
+点击如下链接：
 
 https://huggingface.co/spaces/k2-fsa/icefall-asr-wenetspeech-pruned-transducer-stateless2
 
-出现如下页面
+出现如下页面：
 
 ![](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/2022-07-15-wenetspeech-1.png)
 
@@ -74,7 +74,25 @@ https://huggingface.co/spaces/k2-fsa/icefall-asr-wenetspeech-pruned-transducer-s
 
 ![](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/2022-07-15-wenetspeech-2.png)
 
+> 支持常见的音频格式，如 .wav, .mp3, .opus, .aac 等。如果所给音频的采样率不是 16k，我们会自动
+> 对采样率进行转换。
+
+读者可以用上面类似的方法，对其他数据集预训练模型进行测试。例如：
+
 - 使用 TAL_CSASR  数据集的预训练模型
+
+点击如下链接：
+
+https://huggingface.co/spaces/k2-fsa/icefall-asr-tal_csasr-pruned-transducer-stateless5
+
+出现如下页面：
+
+![](https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pic/2022-07-15-tal_csasr-1.png)
+
+读者可以上传一段中文语音进行识别。识别效果如下图所示：
+
+![](https://github.com/k2-fsa/next-gen-kaldi-wechat/blob/master/pic/2022-07-15-tal_csasr-2.png)
+
 
 类似的，读者可以在 https://hf.co/k2-fsa 网页找到其他数据集的预训练模型进行体验。此处
 不再赘述。
@@ -83,4 +101,14 @@ https://huggingface.co/spaces/k2-fsa/icefall-asr-wenetspeech-pruned-transducer-s
 
 - 使用 WenetSpeech 数据集的预训练模型
 
+点击如下链接：
+
 https://huggingface.co/spaces/k2-fsa/icefall-asr-wenetspeech-pruned-transducer-stateless2-from-recordings
+
+出现如下页面：
+
+![](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/2022-07-15-wenetspeech-3.png)
+
+使用 microphone 进行录音后，点击 `submit` 按钮。出现如下结果：
+
+![](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/2022-07-15-wenetspeech-4.png)
