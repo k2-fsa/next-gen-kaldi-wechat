@@ -30,12 +30,57 @@
 sherpa 既支持 server/client 的通信模式，也支持类似 Kaldi 中的 binary 调用，
 从命令行给定模型及音频，输出文字。
 
-本文介绍如何在浏览器中使用 sherpa 进行语音识别。各位读者可以使用以下两种方式:
+本文介绍如何在浏览器中使用 sherpa 进行语音识别; 不讨论如何通过 server/client 的方式，
+使用 sherpa。
 
-- 上传一个音频进行语音识别
+
+## 在浏览器中体验 sherpa
+
+我们已经把 sherpa 集成到了 hugging face spaces。总入口在
+
+https://hf.co/k2-fsa
+
+或者
+
+https://huggingface.co/k2-fsa
+
+
+目前，我们支持 [icefall](https://github.com/k2-fsa/icefall) 中，使用如下数据集训练出来的模型:
+
+- [WenetSpeech](https://github.com/wenet-e2e/WenetSpeech)， 中文
+- [GigaSpeech](https://github.com/SpeechColab/GigaSpeech)， 英文
+- [LibriSpeech](https://www.openslr.org/12)， 英文
+- [TAL_CSASR](https://ai.100tal.com/dataset)，中英混合
+
+
+各位读者可以使用以下两种方式在浏览器中进行体验:
+
+- 上传一个音频，然后进行语音识别
 - 在浏览器中进行录音，然后进行识别
 
-本文不讨论如何通过 server/client 的方式，使用 sherpa。
+### 上传一个音频进行识别
 
-# 在浏览器中体验 sherpa
+- 使用 WenetSpeech 数据集的预训练模型
 
+点击如下链接
+
+https://huggingface.co/spaces/k2-fsa/icefall-asr-wenetspeech-pruned-transducer-stateless2
+
+出现如下页面
+
+![](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/2022-07-15-wenetspeech-1.png)
+
+读者可以上传一段中文语音进行识别。识别效果如下图所示：
+
+![](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/2022-07-15-wenetspeech-2.png)
+
+- 使用 TAL_CSASR  数据集的预训练模型
+
+类似的，读者可以在 https://hf.co/k2-fsa 网页找到其他数据集的预训练模型进行体验。此处
+不再赘述。
+
+### 从浏览器中进行录音然后识别
+
+- 使用 WenetSpeech 数据集的预训练模型
+
+https://huggingface.co/spaces/k2-fsa/icefall-asr-wenetspeech-pruned-transducer-stateless2-from-recordings
