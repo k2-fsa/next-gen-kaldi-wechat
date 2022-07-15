@@ -112,3 +112,13 @@ https://huggingface.co/spaces/k2-fsa/icefall-asr-wenetspeech-pruned-transducer-s
 使用 microphone 进行录音后，点击 `submit` 按钮。出现如下结果：
 
 ![](https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/pic/2022-07-15-wenetspeech-4.png)
+
+类似的，读者可以在 https://hf.co/k2-fsa 网页找到其他数据集的预训练模型进行体验。此处
+
+> 读者可以从手机端打开上述链接进行测试。
+
+## 总结
+
+本文介绍了如何从浏览器中体验 sherpa，进行自动语音识别，而不需要读者下载或者安装额外的文件。
+
+各位读者后续可以关注 https://hf.co/k2-fsa 。我们会陆续支持更多数据集预训练模型。
