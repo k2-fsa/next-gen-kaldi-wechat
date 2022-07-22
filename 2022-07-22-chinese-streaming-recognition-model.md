@@ -124,7 +124,7 @@ https://github.com/k2-fsa/icefall/pull/447
 ![](https://raw.githubusercontent.com/k2-fsa/next-gen-kaldi-wechat/master/pic/2022-07-22-wenet-results.png)
 
 `值得注意的是`，`wenet` 中，使用 8 个 A100 GPU （文档中未注明 GPU RAM 是 40 GB 还是 80 GB）训
-练了 50 个 epoch。而 `icefall` 使用 8 个 V100 GPU （32 GB RAM）训练 5 个 epoch 就可以达
+练了 50 个 epoch。而 `icefall` 使用 8 个 V100 GPU （32 GB RAM）训练 5 个 epoch 就可以达到
 `wenet` 中同样的效果，甚至更好。
 
 我们提供的预训练模型下载链接如下：
@@ -143,7 +143,7 @@ https://huggingface.co/luomingshuang/icefall_asr_wenetspeech_pruned_transducer_s
 
 https://k2-fsa.github.io/sherpa/installation/index.html
 
-接下来我们介绍，如何部署上面的与预训练模型。
+接下来我们介绍，如何部署上面的预训练模型。
 
 ### 下载模型
 
@@ -193,7 +193,7 @@ http://localhost:6008/streaming_record.html
 
 点击 `Streaming-Record` 按钮，然后说话，就可以实时的看见识别的结果了。
 
-具体的识别效果，可以访问如下视频链接：
+具体的识别效果，可以访问如下视频：
 
 
 
