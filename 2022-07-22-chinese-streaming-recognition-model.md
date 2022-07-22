@@ -195,9 +195,7 @@ http://localhost:6008/streaming_record.html
 
 具体的识别效果，可以访问如下视频：
 
-https://github.com/k2-fsa/next-gen-kaldi-wechat/raw/master/video/2022-07-22-zengwei-chinese-streaming-asr.mp4
-
-
+https://user-images.githubusercontent.com/5284924/180442179-7201ce56-4af7-489c-a386-92318a81c9d2.mp4
 
 ## 总结
 
