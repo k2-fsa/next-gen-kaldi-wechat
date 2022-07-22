@@ -109,7 +109,7 @@ python3 pruned_transducer_stateless5/streaming_decode.py \
 `Test_Meeting` 上的 `CER` 如下表所示。
 
 |Checkpoint  |	Decoding method	|	Dev	|	Test_Net	|	Test_Meeting	|
-|---| ---|---|---|---|
+|---|---|---|---|---|
 |	epoch-5 | greedy search	|	8.79	|	10.80		|	16.82	|
 |	epoch-6 | greedy search	|	8.79	|	10.47		|	16.34	|
 
