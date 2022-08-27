@@ -474,7 +474,7 @@ clean:
 可以直接运行，无须设置 `LD_LIBRARY_PATH` 环境变量。
 
 > 小编注：上面的 API 只展示了如何识别音频文件。我们其实还支持输入 audio samples
-> 和特征进行解码。更多的列子，可以参考：
+> 和特征进行解码。更多的例子，可以参考：
 >
 > - https://github.com/k2-fsa/sherpa/blob/master/sherpa/cpp_api/test_decode_features.cc
 > - https://github.com/k2-fsa/sherpa/blob/master/sherpa/cpp_api/test_decode_samples.cc
