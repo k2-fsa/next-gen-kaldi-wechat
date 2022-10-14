@@ -485,7 +485,8 @@ $ ls -lh tokens.txt *ncnn*
 
 > 注：如果你使用的是 ``Windows``, 请用 ``./build/bin/Release/sherpa-ncnn-microphone.exe``。
 
-下面是一个 bilibili 的视频链接，详细演示了如何编译 `sherpa-ncnn`` 以及如何使用
+下面是一个 ``bilibili`` 的视频链接，详细演示了如何在 ``macOS`` 系统编译
+``sherpa-ncnn`` 以及如何使用
 ``sherpa-ncnn`` 利用麦克风进行实时的语音识别：
 
 https://www.bilibili.com/video/BV1TP411p7dh/
@@ -526,8 +527,8 @@ https://www.bilibili.com/video/BV1TP411p7dh/
 
 > 注：如果你使用的是 ``Windows``, 请用 ``./build/bin/Release/sherpa-ncnn-microphone.exe``。
 
-下面是一个 bilibili 的视频链接，详细演示了如何编译 `sherpa-ncnn`` 以及如何使用
-``sherpa-ncnn`` 利用麦克风进行实时的语音识别：
+下面是一个 ``bilibili`` 的视频链接，详细演示了如何使用
+``sherpa-ncnn`` 在 ``Windows`` 平台利用麦克风进行实时的语音识别：
 
 https://www.bilibili.com/video/BV1214y177vu/
 
