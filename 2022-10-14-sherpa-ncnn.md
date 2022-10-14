@@ -55,12 +55,12 @@ https://user-images.githubusercontent.com/5284924/195835352-d0bfb6e6-fb71-4bf8-a
 
 剩下的选择就是通过 ``PNNX`` 进行模型转换。 不幸的是 ``ncnn`` 和 ``PNNX``
 直到今天 （2022.10.14）才支持带 ``projection`` 的 ``LSTM``。幸运的是，
-``ncnn`` 和 ``PNXX`` 扩展性能很好，添加自定义算子的步骤简便、快捷，
-为此我们修改了 ``ncnn`` 和 ``PNXX``，增加了对带 ``projection`` 的 ``LSTM``
+``ncnn`` 和 ``PNNX`` 扩展性能很好，添加自定义算子的步骤简便、快捷，
+为此我们修改了 ``ncnn`` 和 ``PNNX``，增加了对带 ``projection`` 的 ``LSTM``
 的支持。
 
 > 在我们的要求下，``ncnn``  的开发者增加了上述功能。
-> 后续我们会使用 ``ncnn`` 和 ``PNXX`` 内置的实现。
+> 后续我们会使用 ``ncnn`` 和 ``PNNX`` 内置的实现。
 
 解决了不支持的算子问题后，接下来就是正式的转模型了。目前 ``PNNX`` 只支持
 ``torch.jit.trace()`` 导出的模型。因此，我们首先需要把模型通过 ``torch.jit.trace()``
@@ -89,7 +89,7 @@ avg=16
   - ``./lstm_transducer_stateless2/exp/decoder_jit_trace-pnnx.pt``
   - ``./lstm_transducer_stateless2/exp/joiner_jit_trace-pnnx.pt``
 
-剩下的就是使用 ``PNXX`` 对 ``torch.jit.trace()`` 导出的文件进行转换。
+剩下的就是使用 ``PNNX`` 对 ``torch.jit.trace()`` 导出的文件进行转换。
 
 下述命令展示了如何安装我们修改过后的 ``ncnn`` 和 ``PNNX``。
 
