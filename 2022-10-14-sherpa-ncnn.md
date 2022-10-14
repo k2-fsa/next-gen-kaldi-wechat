@@ -1,5 +1,8 @@
 # sherpa + ncnn 进行语音识别
 
+> 本文介绍据我们所知, 第一个使用 ``ncnn`` 进行语音识别的开源项目
+> ``sherpa-ncnn``
+
 ## 简介
 
 [sherpa][sherpa] 目前支持使用 ``PyTorch`` 做推理框架，进行语音识别。
