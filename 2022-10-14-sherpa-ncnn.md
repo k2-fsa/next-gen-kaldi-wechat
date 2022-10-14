@@ -1,7 +1,7 @@
 # sherpa + ncnn 进行语音识别
 
 > 本文介绍据我们所知, 第一个使用 ``ncnn`` 进行语音识别的开源项目
-> ``sherpa-ncnn``
+> ``sherpa-ncnn``。
 
 ## 简介
 
