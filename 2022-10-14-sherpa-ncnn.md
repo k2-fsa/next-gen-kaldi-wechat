@@ -550,7 +550,7 @@ https://www.bilibili.com/video/BV1214y177vu/
 框架，如 [mace][mace]。
 
 > 对 ``Android`` 和 ``iOS`` 等平台的支持，我们需要来自社区的你进行支持。
-> 如果你感兴趣，欢迎给 ``sherpa-ncnn`` 提 PR，我们有新一代 Kaldi 周边的
+> 如果你感兴趣，欢迎给 ``sherpa-ncnn`` 提 ``PR``，我们有新一代 ``Kaldi`` 周边的
 > 文创产品赠送。
 
 
