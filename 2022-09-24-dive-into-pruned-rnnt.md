@@ -31,13 +31,13 @@ Pruned RNN-T 快的秘诀在于解决了这个四维向量的问题，在 [多�
 
 <center> 图(2)
 
-在一个 lattice 中，每一个节点包含了两个概率，即 $ y(t,u)$ 和 $\varnothing(t, u)$ , $ y(t, u) $ 表示在第 $t$ 帧给定 $ y_{0..u} $ 的情况下发射 $y_{u+1}$ 的对数概率，$ \varnothing(t, u) $ 则代表在第 $t$ 帧给定 $ y_{0..u} $ 的情况下发射 $blank$ 的对数概率。由于 `trivial joiner` 是个简单的相加，所以我们不需要在相加之后的向量中来获取这两个概率，只需分别在 $am$ 和 $lm$ 中获得这两个概率，然后将 $am $ 和 $lm $ 中得到的概率分别加起来就行。获取概率的操作就是个简单的查询，在代码中使用 `torch.gather` 来实现，这个过程和乘法分配律非常相似。
+在一个 lattice 中，每一个节点包含了两个概率，即 $y(t,u)$ 和 $\varnothing(t, u)$ , $y(t, u)$ 表示在第 $t$ 帧给定 $y_{0..u}$ 的情况下发射 $y_{u+1}$ 的对数概率，$\varnothing(t, u)$ 则代表在第 $t$ 帧给定 $y_{0..u}$ 的情况下发射 $blank$ 的对数概率。由于 `trivial joiner` 是个简单的相加，所以我们不需要在相加之后的向量中来获取这两个概率，只需分别在 $am$ 和 $lm$ 中获得这两个概率，然后将 $am$ 和 $lm$ 中得到的概率分别加起来就行。获取概率的操作就是个简单的查询，在代码中使用 `torch.gather` 来实现，这个过程和乘法分配律非常相似。
 
 > 注：两个 shape 不一样的向量相加得先统一 shape，即 `logit = am.unsqueeze(2) + lm.unsqueeze(1)`,所以如果相加之后再获取概率，我们就不得不生成一个四维向量。
 
 ### 剪裁边界的确定
 
-有了 $y(t, u)$ 和 $\varnothing(t, u)$ 之后我们就有了 lattice, 可以计算损失函数了，和其他实现一样，在计算损失函数的同时我们也会一并计算 $y(t,u)$ 和 $ \varnothing(t,u) $ 的梯度，这和其他方法使用的前向后向算法并无二致。我们剪裁的目的是尽可能多的保留梯度。在论文中我们讨论了两种计算方式，一种是全局最优方案，即，遍历所有可能边界，这显然不现实。第二种是局部最优方案，即，保证剪裁后每一帧尽可能多将梯度保留，计算方法如下所示：
+有了 $y(t, u)$ 和 $\varnothing(t, u)$ 之后我们就有了 lattice, 可以计算损失函数了，和其他实现一样，在计算损失函数的同时我们也会一并计算 $y(t,u)$ 和 $\varnothing(t,u)$ 的梯度，这和其他方法使用的前向后向算法并无二致。我们剪裁的目的是尽可能多的保留梯度。在论文中我们讨论了两种计算方式，一种是全局最优方案，即，遍历所有可能边界，这显然不现实。第二种是局部最优方案，即，保证剪裁后每一帧尽可能多将梯度保留，计算方法如下所示：
 $$p_t =  \operatorname{argmax}_{p=0}^{U{-}S{+}1}( -y'(t, p - 1) + \sum_{u=p}^{p{+}S{-}1} \varnothing'(t, u))$$
 上式通过最大化保留路径里的梯度来获得边界。如上图 1 所示，如在第 3 帧以 $u=2$ 为剪裁边界，每帧保留 4 个 symbol，那么能够保留的梯度就是图中四条绿线的值的和减去红线的值，之所以要减去红线，是因为绿线值中已经包含了红线值，而红线的值将随着点`(3,1)`被 `prune` 掉。  
 当然，这样得到的边界还有一些缺陷，必须符合一些条件才能保证保留下来的路径的完整性，主要有以下三个约束，即，`端点约束`、`单调约束`和`连续约束`。其中连续约束的实现非常巧妙，感兴趣的同学可以在 k2 的代码中搜索 `_adjust_pruning_lower_bound` 函数，有非常详细的注释。
@@ -92,11 +92,11 @@ $$
 $$
   L_{normalizer}(t, u) = \log \sum_v \exp \left( L_{enc}(t, v) + L_{dec}(u, v) \right)
 $$
-论文里说 normalizer 的操作可以看作是一个对数空间的矩阵乘法，即 $ L_{enc} * {L_{dec}}^T $ 在代码里我们先对 $L_{enc}$ 和 $ L_{dec} $ 做了 $exp$ 操作，于是他们两个的矩阵相乘即 $ \sum_v e^{enc} * e^{dec} $ ,也即 $ \sum_v e^{enc + dec} $，等于上式中的normalizer $log$ 后面的部分。当然，代码实现里还做了一些防止溢出的处理，这里不再详述。
+论文里说 normalizer 的操作可以看作是一个对数空间的矩阵乘法，即 $L_{enc}* {L_{dec}}^T$ 在代码里我们先对 $L_{enc}$ 和 $L_{dec}$ 做了 $exp$ 操作，于是他们两个的矩阵相乘即 $\sum_v e^{enc} * e^{dec}$ ,也即 $\sum_v e^{enc + dec}$，等于上式中的normalizer $log$ 后面的部分。当然，代码实现里还做了一些防止溢出的处理，这里不再详述。
 在 rnnt_loss_smoothed 上，还要稍微复杂一点，但原理都是一样的，smoothed 版本实现的是：
-$$
+$${
   L_{smoothed}(t, u, v) = \left(1-\alpha^{lm}-\alpha^{acoustic}\right) L_{trivial}(t, u, v) + \alpha^\mathrm{lm} L_\mathrm{lm}(t, u, v) + \alpha^\mathrm{acoustic} L_\mathrm{acoustic}(t, u, v)
-$$ 
+}$$ 
 其中：
 $$
 \begin{align}
@@ -109,7 +109,7 @@ $$
 $L_{dec}^{avg}$定义为：
 
 $$L_\mathrm{dec}^\mathrm{avg}(u, v)  = \log \frac{1}{U+1} \sum_{u=0}^{U} \operatorname{Softmax}_v L_\mathrm{dec}(u, v)$$
-切记，我们的目标是使 $ L_{smoothed}(t,u,v)$ 在 `V` 维度上归一化，$ L_{lm}(t,u,v) $ 比较直观，就是在单矩阵上做 $logsoftmax$ 操作，$ L_{acoustic}(t, u, v) $ 的实现和上面讨论的思路一样，只是把 $ L_{dec} $ 换成了 $ L_{dec}^{avg} $。而 $ L_{trivial} $、$ L_{acoustic} $ 和 $ L_{lm} $ 都归一化后，在三者中间的所有线性组合都是归一化的。
+切记，我们的目标是使 $L_{smoothed}(t,u,v)$ 在 `V` 维度上归一化，$L_{lm}(t,u,v)$ 比较直观，就是在单矩阵上做 $logsoftmax$ 操作，$L_{acoustic}(t, u, v)$ 的实现和上面讨论的思路一样，只是把 $L_{dec}$ 换成了 $L_{dec}^{avg}$。而 $L_{trivial}$、$L_{acoustic}$ 和 $L_{lm}$ 都归一化后，在三者中间的所有线性组合都是归一化的。
 
 $$
 \begin{align}

@@ -351,11 +351,9 @@ build-aarch64-linux-gnu/bin/sherpa-ncnn: ELF 64-bit LSB executable, ARM aarch64,
 
 编译好 ``sherpa-ncnn`` 之后，我们就可以用转换过的模型进行语音识别了。
 
-> 注：目前 ``sherpa-ncnn`` 只实现了 ``greedy search`` 解码方法，不带
-> 任何形式的外部语言模型。
+> 注：目前 ``sherpa-ncnn`` 只实现了 ``greedy search`` 解码方法，不带任何形式的外部语言模型。
 
-为了方便大家测试，我们针对英语和中文，分别提供了转换后的模型。模型下载
-方法如下：
+为了方便大家测试，我们针对英语和中文，分别提供了转换后的模型。模型下载方法如下：
 
 - 下载英文模型
 
