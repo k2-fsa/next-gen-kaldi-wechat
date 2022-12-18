@@ -44,11 +44,22 @@ https://huggingface.co/csukuangfj/sherpa-ncnn-apk/resolve/main/2022-12-17-with-v
 
 ### 1. 纯中文（不带背景噪声）
 
+https://user-images.githubusercontent.com/5284924/208226486-1689d28b-b83e-44b5-8978-3eedad467d5c.mp4
+
 ### 2. 中文 + 英文（不带背景噪声）
+
+https://user-images.githubusercontent.com/5284924/208226485-70f94cb9-7025-46f1-a0bb-f988f3915333.mp4
+
 
 ### 3. 中文 （小猪佩奇节选，带背景噪声）
 
+https://user-images.githubusercontent.com/5284924/208238925-b8cdbd33-cce1-44e2-bfc8-425f1f524fc7.mp4
+
+
 ### 4. 中文诗词 （带背景音乐）
+
+https://user-images.githubusercontent.com/5284924/208238933-69f450c5-aeb6-4471-be7f-b18562bdf1d3.mp4|
+
 
 
 ## 总结
