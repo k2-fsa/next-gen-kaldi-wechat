@@ -20,6 +20,7 @@ https://k2-fsa.github.io/sherpa/ncnn/index.html
 
 下图展示了我们构建的 ``apk`` 所包含的详细内容。
 
+![](./pic/2022-12-18-apk-content.png)
 
 大家可以看到，我们的 `runtime` （动态库）合计不超过 ``1.6 MB``。
 ``apk`` 中绝大部分都是由预训练模型组成。
