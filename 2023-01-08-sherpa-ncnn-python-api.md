@@ -87,7 +87,7 @@ https://k2-fsa.github.io/sherpa/ncnn/python/index.html#real-time-recognition-wit
 ```python3
 #!/usr/bin/env python3
 
-# Real-time speech recognition from a microphone with sherpa-ncnn Python API
+# Real-time speech recognition from a microphone using sherpa-ncnn Python API
 # with endpoint detection.
 #
 # Please refer to
