@@ -19,7 +19,7 @@
 |---|---|---|
 |CPU|4 核 `64-bit` ARM Cortex-`A72`@1.5 GHz|4 核 `32-bit` ARM Cortex-`A7`@1.0GHz|
 |RAM| 8 GB | 2 GB|
-|麦克风| 无，需外接。|板子自带|
+|麦克风| 无，需外接|板子自带|
 |淘宝价格| / | 399 (单主板套餐)|
 
 > 小编注：对于树莓派，可以在淘宝买一个 `USB` 免驱动的麦克风进行测试。
@@ -36,7 +36,7 @@
 - 张老师 (https://github.com/jimbozhang) 提供树莓派进行测试
 - `Sipeed` (https://wiki.sipeed.com/hardware/en/maixIII/ax-pi/axpi.html) 赠送爱芯派进行测试
 
-新一代 `Kaldi` 开源框架，是完全开源的。比如使用文档、训练代码、
+新一代 `Kaldi` 开源框架，是完全开源的，比如使用文档、训练代码、
 训练好的模型、部署代码等。
 
 感兴趣的读者，如果想复现本文的演示视频，可以参考：
@@ -114,7 +114,7 @@ total 10M
 
 - `sherpa-ncnn-alsa`： 用于实时读取麦克风并进行识别。
 
-上述两个可执行文件，采用的是静态连接，只依赖系统库。验证方式如下：
+上述两个可执行文件，采用的是`静态连接`，只依赖系统库。验证方式如下：
 
 ```bash
 $ readelf -d build-aarch64-linux-gnu/install/bin/sherpa-ncnn
@@ -220,7 +220,7 @@ sherpa-ncnn-conv-emformer-transducer-small-2023-01-09 fangjun$ ls -lh {encoder,d
 请把上面的模型文件以及生成的 `sherpa-ncnn` 和 `sherpa-ncnn-alsa` 拷贝到
 树莓派4 开发板。
 
-> 小编注：由于我们默认采用的是静态链接，你只需要拷贝生成的可执行文件即可。
+> 小编注：由于我们默认采用的是`静态链接`，你只需要拷贝生成的可执行文件即可。
 
 
 我们使用下面的命令，测试两个模型在树莓派4上的 `RTF`.
@@ -363,9 +363,13 @@ sherpa-ncnn-conv-emformer-transducer-small-2023-01-09 fangjun$ ls -lh {encoder,d
 |新一代`Kaldi` - 树莓派4 英文实时语音识别(小模型，单线程)|https://www.bilibili.com/video/BV1i84y1b7pu|
 |新一代`Kaldi` - 树莓派4 中英文实时语音识别|https://www.bilibili.com/video/BV1qx4y1u735/|
 
-todo: 英文
+**英文实时识别视频**
 
-todo: 纯中文
+https://www.bilibili.com/video/BV1i84y1b7pu/
+
+**中英文混合实时识别视频**
+
+https://www.bilibili.com/video/BV1qx4y1u735/
 
 
 > 小编提问：你能从视频中的 `htop`  输出信息中，找出识别进程的内存使用情况么？
@@ -437,7 +441,7 @@ total 6.6M
 
 - `sherpa-ncnn-alsa`： 用于实时读取麦克风并进行识别。
 
-上述两个可执行文件，采用的是静态连接，只依赖系统库。验证方式如下：
+上述两个可执行文件，采用的是`静态连接`，只依赖系统库。验证方式如下：
 
 ```bash
 $ readelf -d build-arm-linux-gnueabihf/install/bin/sherpa-ncnn
@@ -476,7 +480,7 @@ Dynamic section at offset 0x22ded8 contains 32 entries:
 请把上面的模型文件以及生成的 `sherpa-ncnn` 和 `sherpa-ncnn-alsa` 拷贝到
 `爱芯派`开发板。
 
-> 小编注：由于我们默认采用的是静态链接，你只需要拷贝生成的可执行文件即可。
+> 小编注：由于我们默认采用的是`静态链接`，你只需要拷贝生成的可执行文件即可。
 
 我们采用和树莓派4 同样的命令测试 `RTF`。
 
@@ -542,12 +546,13 @@ https://github.com/k2-fsa/icefall/pull/848
 - 识别率更高
 - 识别速度更快
 - 资源消耗更少
+- `所有`代码和模型完全开源
 
 的模型。
 
 这期间，有很多工作需要做。如果你也感兴趣，或者在使用中碰到任何问题，可以通过
 下述方式联系我们：
 
-- 微信公众号：新一代 Kaldi
+- 微信公众号：新一代 `Kaldi`
 - 微信交流群：请关注我们的公众号，加工作人员微信，邀请进群
 - QQ 交流群：744602236
