@@ -31,8 +31,8 @@
 
 https://k2-fsa.github.io/sherpa/onnx/index.html
 
-视频 1：使用 `sherpa-onnx` 在 iPhone 上进行实时的语音识别
----------------------------------------------------------
+视频 1/4：使用 `sherpa-onnx` 在 iPhone 上进行实时的语音识别
+-----------------------------------------------------------
 
 这里我们只提供 `sherpa-onnx` 在 `iPhone` 上的实时语音识别例子。如果你想在
 `Android` 或 `iPad` 上进行实时的语音识别，请参考 `sherpa-onnx` 的文档。
@@ -40,8 +40,8 @@ https://k2-fsa.github.io/sherpa/onnx/index.html
 https://www.bilibili.com/video/BV1gL411Z7dD/
 
 
-视频 2：使用 `sherpa-onnx` 在 树莓派4 上进行实时的语音识别
---------------------------------------------------------
+视频 2/4：使用 `sherpa-onnx` 在 树莓派4 上进行实时的语音识别
+------------------------------------------------------------
 
 这里我们只提供 `sherpa-onnx` 在 树莓派上的实时语音识别例子。如果你想在
 其他嵌入式板子上进行实时的语音识别，请参考 `sherpa-onnx` 的文档。
@@ -49,16 +49,16 @@ https://www.bilibili.com/video/BV1gL411Z7dD/
 https://www.bilibili.com/video/BV15Y4y1m7NT/
 
 
-视频 3：使用 `sherpa-onnx` 在 macOS 上进行实时的语音识别
---------------------------------------------------------
+视频 3/4：使用 `sherpa-onnx` 在 macOS 上进行实时的语音识别
+----------------------------------------------------------
 
 这里我们只提供 `sherpa-onnx` 在 `macOS` 上的实时语音识别例子。如果你想在
 Linux 或者 Windows 上进行实时的语音识别，请参考 `sherpa-onnx` 的文档。
 
 https://www.bilibili.com/video/BV1L24y1V7TT/
 
-视频 4：使用 `sherpa-onnx` WebSocket服务进行实时的语音识别
-----------------------------------------------------------
+视频 4/4：使用 `sherpa-onnx` WebSocket服务进行实时的语音识别
+------------------------------------------------------------
 
 这个视频向大家演示 `sherpa-onnx` 的 WebSocket server 支持多客户端的例子。
 
