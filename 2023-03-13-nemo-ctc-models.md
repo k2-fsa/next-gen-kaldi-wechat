@@ -41,7 +41,7 @@
 
 下面我们向大家介绍原理及使用方法。
 
-# 原理
+## 原理
 
 要支持一个基于 `CTC loss` 训练的语音识别模型，我们需要解决以下 3 个问题：
 
@@ -51,7 +51,7 @@
 
 (3) `CTC` 解码
 
-## 特征提取
+### 特征提取
 
 不同的框架，一般采用不同的特征提取方式。`NeMo` 中，这一步骤被称为 `Preprocessor`。
 我们需要重点关注以下四个方面：
@@ -66,7 +66,7 @@
 幸运的是，`NeMo` 采用了和 `Kaldi` 相兼容的 `Fbank`
 作为特征，我们只需要在  `sherpa` 中支持对特征进行归一化这一额外的操作即可。
 
-## 神经网络计算
+### 神经网络计算
 
 `sherpa` 使用 PyTorch 进行神经网络计算，我们需要把 `NeMo` 中的模型导出
 成 `torchscript` 格式。 在`NeMo` 中, 只需要使用下面一行语句即可:
@@ -81,7 +81,7 @@ model.export("model.pt")
 是 `nn.Linear`, `nn.Softmax`, 还是 `nn.LogSoftmax` 的输出。
 
 
-## CTC 解码
+### CTC 解码
 
 `sherpa` 使用 [`k2`](https://github.com/k2-fsa/k2) 进行 `CTC` 解码，支持
 CPU/GPU, 同时也支持以 batch 的方式进行并行解码。我们只需要得到神经网络模型的
@@ -90,7 +90,7 @@ CPU/GPU, 同时也支持以 batch 的方式进行并行解码。我们只需要�
 这一步是所有步骤中，最简单的一步。
 
 
-# 使用方法
+## 使用方法
 
 下述文档
 
@@ -111,7 +111,7 @@ https://catalog.ngc.nvidia.com/orgs/nvidia/collections/nemo_asr
 以及 Python API [offline_ctc_asr.py](https://github.com/k2-fsa/sherpa/blob/master/sherpa/bin/offline_ctc_asr.py)
 
 
-# 总结
+## 总结
 
 本文介绍了如何在新一代 `Kaldi` 的 `sherpa` 部署框架中使用来自 `NeMo` 的
 预训练 `CTC` 模型。
