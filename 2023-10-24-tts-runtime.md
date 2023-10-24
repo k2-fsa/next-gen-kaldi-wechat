@@ -131,11 +131,11 @@ python3 ./offline-tts.py \
 
 生成的音频文件如下表所示:
 
-|liliana-10.wav|xxx|
+|liliana-10.wav|[./audio/tts/liliana-10.wav](./audio/tts/liliana-10.wav)|
 |---|---|
-|liliana-30.wav|xxx|
-|liliana-30-2x.wav|xxx|
-|liliana-30-0.8x.wav|xxx|
+|liliana-30.wav|[./audio/tts/liliana-30.wav](./audio/tts/liliana-30.wav)|
+|liliana-30-2x.wav|[./audio/tts/liliana-30-2x.wav](./audio/tts/liliana-30-2x.wav)|
+|liliana-30-0.8x.wav|[./audio/tts/liliana-30-0.8x.wav](./audio/tts/liliana-30-0.8x.wav)|
 
 > 注：本文使用的模型为网上开源的预训练模型。
 
@@ -167,9 +167,9 @@ python3 ./offline-tts.py \
 
 生成的音频文件如下表所示:
 
-|kennedy-0.wav|xxx|
+|kennedy-0.wav|[./audio/tts/kennedy-0.wav](./audio/tts/kennedy-0.wav)|
 |---|---|
-|armstrong-99.wav|xxx|
+|armstrong-99.wav|[./audio/tts/armstrong-99.wav](./audio/tts/armstrong-99.wav)|
 
 > 注：本文使用的模型为网上开源的预训练模型。
 
