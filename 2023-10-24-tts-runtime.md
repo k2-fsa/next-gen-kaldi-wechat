@@ -175,7 +175,7 @@ python3 ./offline-tts.py \
 
 ## 体验
 
-我们提供三种种方式供大家体验 ``sherpa-onnx`` 里的文字转语音。
+我们提供三种方式供大家体验 ``sherpa-onnx`` 里的文字转语音。
 
 ### Android APK
 
